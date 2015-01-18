@@ -17,7 +17,7 @@ set.Exists(32)
 The `int` and `uint32` variations have the same API (except for the obvious difference that one deals with `int` and the other with `uint32`).
 
 - `Set(int)`
-- `Exsits(int) bool`
+- `Exits(int) bool`
 - `Remove(int) bool`
 
 (It's hopefully obviously where a `uint32` is expected when dealing with the `uint32` variant)
