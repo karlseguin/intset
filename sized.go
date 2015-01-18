@@ -42,6 +42,20 @@ func (s *Sized) Set(value int) {
 	s.buckets[index] = arr
 }
 
+// returns true if the value existed
+func (s *Sized) Remove(value int) bool {
+	index := value & s.mask
+	bucket := s.buckets[index]
+	position, exists := s.index(value, bucket)
+	if exists == false {
+		return false
+	}
+	l := len(bucket) - 1
+	bucket[position], bucket[l] = bucket[l], bucket[position]
+	s.buckets[index] = bucket[:l]
+	return true
+}
+
 func (s *Sized) Exists(value int) bool {
 	bucket := s.buckets[value&s.mask]
 	_, exists := s.index(value, bucket)

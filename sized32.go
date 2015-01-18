@@ -44,6 +44,20 @@ func (s *Sized32) Exists(value uint32) bool {
 	return exists
 }
 
+// returns true if the value existed
+func (s *Sized32) Remove(value uint32) bool {
+	index := value & s.mask
+	bucket := s.buckets[index]
+	position, exists := s.index(value, bucket)
+	if exists == false {
+		return false
+	}
+	l := len(bucket) - 1
+	bucket[position], bucket[l] = bucket[l], bucket[position]
+	s.buckets[index] = bucket[:l]
+	return true
+}
+
 func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {

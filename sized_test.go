@@ -41,6 +41,22 @@ func (_ SizedTest) SizeLessThanBucket() {
 	Expect(s.Exists(33)).To.Equal(false)
 }
 
+func (_ SizedTest) RemoveNonMembers() {
+	s := NewSized(100)
+	Expect(s.Remove(329)).To.Equal(false)
+}
+
+func (_ SizedTest) RemovesMembers() {
+	s := NewSized(100)
+	for i := 0; i < 10; i++ {
+		s.Set(i)
+	}
+	Expect(s.Remove(20)).To.Equal(false)
+	Expect(s.Remove(2)).To.Equal(true)
+	Expect(s.Remove(2)).To.Equal(false)
+	Expect(s.Exists(2)).To.Equal(false)
+}
+
 func Benchmark_SizedPopulate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		s := NewSized(1000000)
