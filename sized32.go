@@ -22,15 +22,11 @@ func NewSized32(size uint32) *Sized32 {
 func (s *Sized32) Set(value uint32) {
 	index := value & s.mask
 	bucket := s.buckets[index]
-	l := len(bucket)
-	if l == 0 {
-		s.buckets[index] = []uint32{value}
-		return
-	}
 	position, exists := s.index(value, bucket)
 	if exists {
 		return
 	}
+	l := len(bucket)
 	if cap(bucket) == l {
 		n := make([]uint32, l, l+BUCKET_GROW_BY)
 		copy(n, bucket)

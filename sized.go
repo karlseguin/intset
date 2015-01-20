@@ -27,15 +27,11 @@ func NewSized(size int) *Sized {
 func (s *Sized) Set(value int) {
 	index := value & s.mask
 	bucket := s.buckets[index]
-	l := len(bucket)
-	if l == 0 {
-		s.buckets[index] = []int{value}
-		return
-	}
 	position, exists := s.index(value, bucket)
 	if exists {
 		return
 	}
+	l := len(bucket)
 	if cap(bucket) == l {
 		n := make([]int, l, l+BUCKET_GROW_BY)
 		copy(n, bucket)
