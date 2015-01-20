@@ -35,7 +35,7 @@ func (_ SizedTest) Exists() {
 }
 
 func (_ SizedTest) SizeLessThanBucket() {
-	s := NewSized(SIZED_BUCKET_SIZE - 1)
+	s := NewSized(BUCKET_SIZE - 1)
 	s.Set(32)
 	Expect(s.Exists(32)).To.Equal(true)
 	Expect(s.Exists(33)).To.Equal(false)

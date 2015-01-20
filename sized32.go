@@ -7,11 +7,11 @@ type Sized32 struct {
 }
 
 func NewSized32(size uint32) *Sized32 {
-	if size < SIZED_BUCKET_SIZE {
+	if size < uint32(BUCKET_SIZE) {
 		//random, no clue what to make it
-		size = uint32(SIZED_BUCKET_SIZE * 2)
+		size = uint32(BUCKET_SIZE * 2)
 	}
-	count := upTwo(int(size) / SIZED_BUCKET_SIZE)
+	count := upTwo(int(size) / BUCKET_SIZE)
 	s := &Sized32{
 		mask:    uint32(count) - 1,
 		buckets: make([][]uint32, count),
@@ -31,11 +31,17 @@ func (s *Sized32) Set(value uint32) {
 	if exists {
 		return
 	}
-	arr := make([]uint32, l+1)
-	copy(arr, bucket[:position])
-	arr[position] = value
-	copy(arr[position+1:], bucket[position:])
-	s.buckets[index] = arr
+	if cap(bucket) == l {
+		n := make([]uint32, l, l+BUCKET_GROW_BY)
+		copy(n, bucket)
+		bucket = n
+	}
+	bucket = append(bucket, value)
+	if position != l {
+		copy(bucket[position+1:], bucket[position:])
+		bucket[position] = value
+	}
+	s.buckets[index] = bucket
 }
 
 func (s *Sized32) Exists(value uint32) bool {

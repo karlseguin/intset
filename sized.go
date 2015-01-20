@@ -1,8 +1,9 @@
 // integer set
 package intset
 
-const (
-	SIZED_BUCKET_SIZE = 32
+var (
+	BUCKET_SIZE    = 32
+	BUCKET_GROW_BY = 8
 )
 
 type Sized struct {
@@ -11,11 +12,11 @@ type Sized struct {
 }
 
 func NewSized(size int) *Sized {
-	if size < SIZED_BUCKET_SIZE {
+	if size < BUCKET_SIZE {
 		//random, no clue what to make it
-		size = SIZED_BUCKET_SIZE * 2
+		size = BUCKET_SIZE * 2
 	}
-	count := upTwo(size / SIZED_BUCKET_SIZE)
+	count := upTwo(size / BUCKET_SIZE)
 	s := &Sized{
 		mask:    count - 1,
 		buckets: make([][]int, count),
@@ -35,8 +36,13 @@ func (s *Sized) Set(value int) {
 	if exists {
 		return
 	}
+	if cap(bucket) == l {
+		n := make([]int, l, l+BUCKET_GROW_BY)
+		copy(n, bucket)
+		bucket = n
+	}
 	bucket = append(bucket, value)
-	if l := len(bucket); position != (l - 1) {
+	if position != l {
 		copy(bucket[position+1:], bucket[position:])
 		bucket[position] = value
 	}

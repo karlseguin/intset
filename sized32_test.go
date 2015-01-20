@@ -35,7 +35,7 @@ func (_ Sized32Test) Exists() {
 }
 
 func (_ Sized32Test) SizeLessThanBucket() {
-	s := NewSized32(SIZED_BUCKET_SIZE - 1)
+	s := NewSized32(uint32(BUCKET_SIZE) - 1)
 	s.Set(32)
 	Expect(s.Exists(32)).To.Equal(true)
 	Expect(s.Exists(33)).To.Equal(false)
