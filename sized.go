@@ -35,11 +35,12 @@ func (s *Sized) Set(value int) {
 	if exists {
 		return
 	}
-	arr := make([]int, l+1)
-	copy(arr, bucket[:position])
-	arr[position] = value
-	copy(arr[position+1:], bucket[position:])
-	s.buckets[index] = arr
+	bucket = append(bucket, value)
+	if l := len(bucket); position != (l - 1) {
+		copy(bucket[position+1:], bucket[position:])
+		bucket[position] = value
+	}
+	s.buckets[index] = bucket
 }
 
 // returns true if the value existed
