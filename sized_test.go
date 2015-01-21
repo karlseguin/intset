@@ -55,6 +55,7 @@ func (_ SizedTest) RemovesMembers() {
 	Expect(s.Remove(2)).To.Equal(true)
 	Expect(s.Remove(2)).To.Equal(false)
 	Expect(s.Exists(2)).To.Equal(false)
+	Expect(s.Len()).To.Equal(9)
 }
 
 func Benchmark_SizedPopulate(b *testing.B) {

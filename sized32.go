@@ -4,6 +4,7 @@ package intset
 type Sized32 struct {
 	mask    uint32
 	buckets [][]uint32
+	length  int
 }
 
 func NewSized32(size uint32) *Sized32 {
@@ -37,13 +38,8 @@ func (s *Sized32) Set(value uint32) {
 		copy(bucket[position+1:], bucket[position:])
 		bucket[position] = value
 	}
+	s.length++
 	s.buckets[index] = bucket
-}
-
-func (s *Sized32) Exists(value uint32) bool {
-	bucket := s.buckets[value&s.mask]
-	_, exists := s.index(value, bucket)
-	return exists
 }
 
 // returns true if the value existed
@@ -57,7 +53,18 @@ func (s *Sized32) Remove(value uint32) bool {
 	l := len(bucket) - 1
 	bucket[position], bucket[l] = bucket[l], bucket[position]
 	s.buckets[index] = bucket[:l]
+	s.length--
 	return true
+}
+
+func (s *Sized32) Exists(value uint32) bool {
+	bucket := s.buckets[value&s.mask]
+	_, exists := s.index(value, bucket)
+	return exists
+}
+
+func (s Sized32) Len() int {
+	return s.length
 }
 
 func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {

@@ -41,6 +41,23 @@ func (_ Sized32Test) SizeLessThanBucket() {
 	Expect(s.Exists(33)).To.Equal(false)
 }
 
+func (_ Sized32Test) RemoveNonMembers() {
+	s := NewSized32(100)
+	Expect(s.Remove(329)).To.Equal(false)
+}
+
+func (_ Sized32Test) RemovesMembers() {
+	s := NewSized32(100)
+	for i := uint32(0); i < 10; i++ {
+		s.Set(i)
+	}
+	Expect(s.Remove(20)).To.Equal(false)
+	Expect(s.Remove(2)).To.Equal(true)
+	Expect(s.Remove(2)).To.Equal(false)
+	Expect(s.Exists(2)).To.Equal(false)
+	Expect(s.Len()).To.Equal(9)
+}
+
 func Benchmark_Sized32Populate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		s := NewSized32(1000000)

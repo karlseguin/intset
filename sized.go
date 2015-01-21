@@ -9,6 +9,7 @@ var (
 type Sized struct {
 	mask    int
 	buckets [][]int
+	length  int
 }
 
 func NewSized(size int) *Sized {
@@ -42,6 +43,7 @@ func (s *Sized) Set(value int) {
 		copy(bucket[position+1:], bucket[position:])
 		bucket[position] = value
 	}
+	s.length++
 	s.buckets[index] = bucket
 }
 
@@ -56,6 +58,7 @@ func (s *Sized) Remove(value int) bool {
 	l := len(bucket) - 1
 	bucket[position], bucket[l] = bucket[l], bucket[position]
 	s.buckets[index] = bucket[:l]
+	s.length--
 	return true
 }
 
@@ -63,6 +66,10 @@ func (s *Sized) Exists(value int) bool {
 	bucket := s.buckets[value&s.mask]
 	_, exists := s.index(value, bucket)
 	return exists
+}
+
+func (s Sized) Len() int {
+	return s.length
 }
 
 func (s Sized) index(value int, bucket []int) (int, bool) {

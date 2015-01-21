@@ -19,6 +19,7 @@ The `int` and `uint32` variations have the same API (except for the obvious diff
 - `Set(int)`
 - `Exits(int) bool`
 - `Remove(int) bool`
+- `Len() int`
 
 (It's hopefully obviously where a `uint32` is expected when dealing with the `uint32` variant)
 
