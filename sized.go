@@ -1,10 +1,34 @@
 // integer set
 package intset
 
+import (
+	"sort"
+)
+
 var (
 	BUCKET_SIZE    = 32
 	BUCKET_GROW_BY = 8
 )
+
+type Set interface {
+	Len() int
+	Exists(value int) bool
+	Each(f func(value int))
+}
+
+type Sets []Set
+
+func (s Sets) Len() int {
+	return len(s)
+}
+
+func (s Sets) Less(i, j int) bool {
+	return s[i].Len() < s[j].Len()
+}
+
+func (s Sets) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
 
 type Sized struct {
 	mask    int
@@ -75,6 +99,16 @@ func (s Sized) Len() int {
 	return s.length
 }
 
+// Iterate through the set items
+func (s Sized) Each(f func(value int)) {
+	for i, li := 0, len(s.buckets); i < li; i++ {
+		bucket := s.buckets[i]
+		for j, lj := 0, len(bucket); j < lj; j++ {
+			f(bucket[j])
+		}
+	}
+}
+
 func (s Sized) index(value int, bucket []int) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {
@@ -87,6 +121,25 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 		}
 	}
 	return l, false
+}
+
+func Intersect(sets Sets) *Sized {
+	sort.Sort(sets)
+	a, l := sets[0], sets.Len()
+	values := make([]int, 0, a.Len())
+	a.Each(func(value int) {
+		for i := 1; i < l; i++ {
+			if sets[i].Exists(value) == false {
+				return
+			}
+		}
+		values = append(values, value)
+	})
+	s := NewSized(len(values))
+	for _, value := range values {
+		s.Set(value)
+	}
+	return s
 }
 
 // http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2

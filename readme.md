@@ -20,6 +20,18 @@ The `int` and `uint32` variations have the same API (except for the obvious diff
 - `Exits(int) bool`
 - `Remove(int) bool`
 - `Len() int`
+- `Each(f func(value int))`
 
 (It's hopefully obviously where a `uint32` is expected when dealing with the `uint32` variant)
+
+## Intersections
+Two or more sets can be intersected by calling `Intersect` or `Intersect32`. This is largely a reference implementation and callers should consider implementing their own. For example, maybe you want to stop after finding X matches, want to use a pooled array object to hold intermediary objects, or are fine with getting an array back (rather than a set) (all of which should result in much better performance).
+
+The method is called via:
+
+```go
+result := intset.Intersect([]Set{s1, s2})
+//or
+result := intset.Intersect32([]Set32{s1, s2})
+```
 

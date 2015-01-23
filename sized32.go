@@ -1,6 +1,30 @@
 // integer set
 package intset
 
+import (
+	"sort"
+)
+
+type Set32 interface {
+	Len() int
+	Exists(value uint32) bool
+	Each(f func(value uint32))
+}
+
+type Sets32 []Set32
+
+func (s Sets32) Len() int {
+	return len(s)
+}
+
+func (s Sets32) Less(i, j int) bool {
+	return s[i].Len() < s[j].Len()
+}
+
+func (s Sets32) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
 type Sized32 struct {
 	mask    uint32
 	buckets [][]uint32
@@ -67,6 +91,16 @@ func (s Sized32) Len() int {
 	return s.length
 }
 
+// Iterate through the set items
+func (s Sized32) Each(f func(value uint32)) {
+	for i, li := 0, len(s.buckets); i < li; i++ {
+		bucket := s.buckets[i]
+		for j, lj := 0, len(bucket); j < lj; j++ {
+			f(bucket[j])
+		}
+	}
+}
+
 func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {
@@ -79,4 +113,23 @@ func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 		}
 	}
 	return l, false
+}
+
+func Intersect32(sets Sets32) *Sized32 {
+	sort.Sort(sets)
+	a, l := sets[0], sets.Len()
+	values := make([]uint32, 0, a.Len())
+	a.Each(func(value uint32) {
+		for i := 1; i < l; i++ {
+			if sets[i].Exists(value) == false {
+				return
+			}
+		}
+		values = append(values, value)
+	})
+	s := NewSized32(uint32(len(values)))
+	for _, value := range values {
+		s.Set(value)
+	}
+	return s
 }
