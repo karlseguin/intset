@@ -59,9 +59,10 @@ func (_ SizedTest) RemovesMembers() {
 }
 
 func Benchmark_SizedPopulate(b *testing.B) {
+	s := NewSized(10000000)
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s := NewSized(1000000)
-		s.Set(i)
+		s.Set(i % 10000000)
 	}
 }
 

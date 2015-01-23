@@ -59,9 +59,10 @@ func (_ Sized32Test) RemovesMembers() {
 }
 
 func Benchmark_Sized32Populate(b *testing.B) {
+	s := NewSized32(10000000)
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s := NewSized32(1000000)
-		s.Set(uint32(i))
+		s.Set(uint32(i % 10000000))
 	}
 }
 

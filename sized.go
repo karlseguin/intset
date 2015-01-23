@@ -25,6 +25,7 @@ func NewSized(size int) *Sized {
 	return s
 }
 
+// Sets a value
 func (s *Sized) Set(value int) {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -47,7 +48,7 @@ func (s *Sized) Set(value int) {
 	s.buckets[index] = bucket
 }
 
-// returns true if the value existed
+// Returns true if the value existed before being removed
 func (s *Sized) Remove(value int) bool {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -62,12 +63,14 @@ func (s *Sized) Remove(value int) bool {
 	return true
 }
 
+// Returns true if the value exists
 func (s *Sized) Exists(value int) bool {
 	bucket := s.buckets[value&s.mask]
 	_, exists := s.index(value, bucket)
 	return exists
 }
 
+// Total number of elements in the set
 func (s Sized) Len() int {
 	return s.length
 }
