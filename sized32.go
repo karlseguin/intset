@@ -133,3 +133,17 @@ func Intersect32(sets Sets32) *Sized32 {
 	}
 	return s
 }
+
+func Union32(sets Sets32) *Sized32 {
+	values := make(map[uint32]struct{}, sets[0].Len())
+	for i := 0; i < sets.Len(); i++ {
+		sets[i].Each(func(value uint32) {
+			values[value] = struct{}{}
+		})
+	}
+	s := NewSized32(uint32(len(values)))
+	for value := range values {
+		s.Set(value)
+	}
+	return s
+}

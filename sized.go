@@ -142,6 +142,20 @@ func Intersect(sets Sets) *Sized {
 	return s
 }
 
+func Union(sets Sets) *Sized {
+	values := make(map[int]struct{}, sets[0].Len())
+	for i := 0; i < sets.Len(); i++ {
+		sets[i].Each(func(value int) {
+			values[value] = struct{}{}
+		})
+	}
+	s := NewSized(len(values))
+	for value := range values {
+		s.Set(value)
+	}
+	return s
+}
+
 // http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 func upTwo(v int) int {
 	v--
