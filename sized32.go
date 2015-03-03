@@ -105,12 +105,10 @@ func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {
 		v := bucket[i]
-		if v == value {
-			return i, true
+		if v < value {
+			continue
 		}
-		if v > value {
-			return i, false
-		}
+		return i, v == value
 	}
 	return l, false
 }

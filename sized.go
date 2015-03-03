@@ -113,12 +113,10 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {
 		v := bucket[i]
-		if v == value {
-			return i, true
+		if v < value {
+			continue
 		}
-		if v > value {
-			return i, false
-		}
+		return i, v == value
 	}
 	return l, false
 }
