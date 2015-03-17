@@ -112,7 +112,7 @@ func Benchmark_SizedDenseExists(b *testing.B) {
 	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(rand.Intn(1000000)) == false {
+		if s.Exists(1%1000000) == false {
 			misses++
 		}
 	}
@@ -128,7 +128,7 @@ func Benchmark_SizedSparseExists(b *testing.B) {
 	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(rand.Intn(1000000)) == false {
+		if s.Exists(1%1000000) == false {
 			misses++
 		}
 	}

@@ -2,7 +2,6 @@ package intset
 
 import (
 	. "github.com/karlseguin/expect"
-	"math/rand"
 	"testing"
 )
 
@@ -112,7 +111,7 @@ func Benchmark_Sized32DenseExists(b *testing.B) {
 	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(uint32(rand.Int31n(1000000))) == false {
+		if s.Exists(uint32(i%1000000)) == false {
 			misses++
 		}
 	}
@@ -128,7 +127,7 @@ func Benchmark_Sized32SparseExists(b *testing.B) {
 	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(uint32(rand.Int31n(1000000))) == false {
+		if s.Exists(uint32(i%1000000)) == false {
 			misses++
 		}
 	}
