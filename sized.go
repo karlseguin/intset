@@ -109,6 +109,27 @@ func (s Sized) Each(f func(value int)) {
 	}
 }
 
+// Iterate through the set items
+func (s Sized) Intersect(s2 *Sized) *Sized {
+	values := make([]int, s.Len())
+	index := 0
+	for i, li := 0, len(s.buckets); i < li; i++ {
+		bucket := s.buckets[i]
+		for j, lj := 0, len(bucket); j < lj; j++ {
+			value := bucket[j]
+			if s2.Exists(value) {
+				values[index] = value
+				index++
+			}
+		}
+	}
+	n := NewSized(index)
+	for i := 0; i < index; i++ {
+		n.Set(values[i])
+	}
+	return n
+}
+
 func (s Sized) index(value int, bucket []int) (int, bool) {
 	l := len(bucket)
 	for i := 0; i < l; i++ {
