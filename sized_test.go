@@ -25,11 +25,11 @@ func (_ SizedTest) SetsAValue() {
 
 func (_ SizedTest) Exists() {
 	s := NewSized(20)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		Expect(s.Exists(i)).To.Equal(false)
 		s.Set(i)
 	}
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		Expect(s.Exists(i)).To.Equal(true)
 	}
 }
@@ -78,22 +78,24 @@ func (_ SizedTest) IntersectsTwoSets() {
 }
 
 func (_ SizedTest) UnionsTwoSets() {
-	s1 := NewSized(10)
-	s2 := NewSized(10)
-	s1.Set(1)
-	s1.Set(2)
-	s1.Set(3)
+	for i := 0; i < 1000; i++ {
+		s1 := NewSized(10)
+		s2 := NewSized(10)
+		s1.Set(1)
+		s1.Set(2)
+		s1.Set(3)
 
-	s2.Set(2)
-	s2.Set(3)
-	s2.Set(4)
+		s2.Set(2)
+		s2.Set(3)
+		s2.Set(4)
 
-	s := Union([]Set{s1, s2})
-	Expect(s.Exists(1)).To.Equal(true)
-	Expect(s.Exists(2)).To.Equal(true)
-	Expect(s.Exists(3)).To.Equal(true)
-	Expect(s.Exists(4)).To.Equal(true)
-	Expect(s.Exists(5)).To.Equal(false)
+		s := Union([]Set{s1, s2})
+		Expect(s.Exists(1)).To.Equal(true)
+		Expect(s.Exists(2)).To.Equal(true)
+		Expect(s.Exists(3)).To.Equal(true)
+		Expect(s.Exists(4)).To.Equal(true)
+		Expect(s.Exists(5)).To.Equal(false)
+	}
 }
 
 func Benchmark_SizedPopulate(b *testing.B) {
