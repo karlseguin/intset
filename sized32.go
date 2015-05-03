@@ -103,14 +103,29 @@ func (s Sized32) Each(f func(value uint32)) {
 
 func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	l := len(bucket)
-	for i := 0; i < l; i++ {
-		v := bucket[i]
+	if l == 0 {
+		return 0, false
+	}
+
+	l = l / 2
+	v := bucket[l]
+	if value == v {
+		return l, true
+	}
+
+	offset, i := 0, 0
+	if value > v {
+		offset = l
+		bucket = bucket[offset:]
+	}
+
+	for i, v = range bucket {
 		if v < value {
 			continue
 		}
-		return i, v == value
+		return offset + i, v == value
 	}
-	return l, false
+	return offset + i + 1, false
 }
 
 func Intersect32(sets Sets32) *Sized32 {

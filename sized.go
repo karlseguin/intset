@@ -114,37 +114,26 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 	if l == 0 {
 		return 0, false
 	}
-	if value <= bucket[l/2] {
-		return s.indexLow(value, bucket)
-	}
-	return s.indexHigh(value, bucket)
-}
 
-func (s Sized) indexLow(value int, bucket []int) (int, bool) {
-	l := len(bucket)
-	for i := 0; i < l; i++ {
-		v := bucket[i]
+	l = l / 2
+	v := bucket[l]
+	if value == v {
+		return l, true
+	}
+
+	offset, i := 0, 0
+	if value > v {
+		offset = l
+		bucket = bucket[offset:]
+	}
+
+	for i, v = range bucket {
 		if v < value {
 			continue
 		}
-		return i, v == value
+		return offset + i, v == value
 	}
-	return l, false
-}
-
-func (s Sized) indexHigh(value int, bucket []int) (int, bool) {
-	l := len(bucket)
-	for i := l - 1; i >= 0; i-- {
-		v := bucket[i]
-		if v > value {
-			continue
-		}
-		if v == value {
-			return i, true
-		}
-		return i + 1, false
-	}
-	return 0, false
+	return offset + i + 1, false
 }
 
 func Intersect(sets Sets) *Sized {
