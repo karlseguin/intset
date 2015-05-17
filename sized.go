@@ -101,10 +101,9 @@ func (s Sized) Len() int {
 
 // Iterate through the set items
 func (s Sized) Each(f func(value int)) {
-	for i, li := 0, len(s.buckets); i < li; i++ {
-		bucket := s.buckets[i]
-		for j, lj := 0, len(bucket); j < lj; j++ {
-			f(bucket[j])
+	for _, bucket := range s.buckets {
+		for _, value := range bucket {
+			f(value)
 		}
 	}
 }
