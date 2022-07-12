@@ -80,9 +80,7 @@ func (s *Rune) Remove(value rune) bool {
 }
 
 func (s *Rune) Exists(value rune) bool {
-	bucket := s.buckets[value&s.mask]
-	_, exists := s.index(value, bucket)
-	return exists
+	return s.exists(value, s.buckets[value&s.mask])
 }
 
 func (s Rune) Len() int {
@@ -117,12 +115,34 @@ func (s Rune) index(value rune, bucket []rune) (int, bool) {
 	}
 
 	for i, v = range bucket {
-		if v < value {
-			continue
+		if v >= value {
+			return offset + i, v == value
 		}
-		return offset + i, v == value
 	}
 	return offset + i + 1, false
+}
+
+func (s Rune) exists(value rune, bucket []rune) bool {
+	l := len(bucket)
+	if l == 0 {
+		return false
+	}
+
+	l = l / 2
+	v := bucket[l]
+	if value == v {
+		return true
+	}
+	if value > v {
+		bucket = bucket[l:]
+	}
+
+	for _, v = range bucket {
+		if v >= value {
+			return v == value
+		}
+	}
+	return false
 }
 
 func IntersectRune(sets SetsRune) *Rune {

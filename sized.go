@@ -90,9 +90,7 @@ func (s *Sized) Remove(value int) bool {
 
 // Returns true if the value exists
 func (s *Sized) Exists(value int) bool {
-	bucket := s.buckets[value&s.mask]
-	_, exists := s.index(value, bucket)
-	return exists
+	return s.exists(value, s.buckets[value&s.mask])
 }
 
 // Total number of elements in the set
@@ -128,12 +126,34 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 	}
 
 	for i, v = range bucket {
-		if v < value {
-			continue
+		if v >= value {
+			return offset + i, v == value
 		}
-		return offset + i, v == value
 	}
 	return offset + i + 1, false
+}
+
+func (s Sized) exists(value int, bucket []int) bool {
+	l := len(bucket)
+	if l == 0 {
+		return false
+	}
+
+	l = l / 2
+	v := bucket[l]
+	if value == v {
+		return true
+	}
+	if value > v {
+		bucket = bucket[l:]
+	}
+
+	for _, v = range bucket {
+		if v >= value {
+			return v == value
+		}
+	}
+	return false
 }
 
 func Intersect(sets Sets) *Sized {

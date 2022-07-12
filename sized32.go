@@ -82,9 +82,7 @@ func (s *Sized32) Remove(value uint32) bool {
 }
 
 func (s *Sized32) Exists(value uint32) bool {
-	bucket := s.buckets[value&s.mask]
-	_, exists := s.index(value, bucket)
-	return exists
+	return s.exists(value, s.buckets[value&s.mask])
 }
 
 func (s Sized32) Len() int {
@@ -119,12 +117,34 @@ func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	}
 
 	for i, v = range bucket {
-		if v < value {
-			continue
+		if v >= value {
+			return offset + i, v == value
 		}
-		return offset + i, v == value
 	}
 	return offset + i + 1, false
+}
+
+func (s Sized32) exists(value uint32, bucket []uint32) bool {
+	l := len(bucket)
+	if l == 0 {
+		return false
+	}
+
+	l = l / 2
+	v := bucket[l]
+	if value == v {
+		return true
+	}
+	if value > v {
+		bucket = bucket[l:]
+	}
+
+	for _, v = range bucket {
+		if v >= value {
+			return v == value
+		}
+	}
+	return false
 }
 
 func Intersect32(sets Sets32) *Sized32 {
