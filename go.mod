@@ -1,4 +1,4 @@
-module intset
+module github.com/elliotwutingfeng/intset
 
 go 1.18
 
