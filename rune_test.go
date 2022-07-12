@@ -35,7 +35,7 @@ func (RuneTest) Exists() {
 }
 
 func (RuneTest) SizeLessThanBucket() {
-	s := NewRune(rune(BUCKET_SIZE) - 1)
+	s := NewRune(rune(bucketSize) - 1)
 	s.Set(32)
 	expect.Expect(s.Exists(32)).To.Equal(true)
 	expect.Expect(s.Exists(33)).To.Equal(false)
@@ -109,12 +109,9 @@ func Benchmark_RuneDenseExists(b *testing.B) {
 	for i := rune(0); i < 1000000; i++ {
 		s.Set(i)
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(rune(i%1000000)) == false {
-			misses++
-		}
+		s.Exists(rune(i % 1000000))
 	}
 }
 
@@ -125,11 +122,8 @@ func Benchmark_RuneSparseExists(b *testing.B) {
 			s.Set(i)
 		}
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(rune(i%1000000)) == false {
-			misses++
-		}
+		s.Exists(rune(i % 1000000))
 	}
 }

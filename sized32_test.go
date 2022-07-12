@@ -35,7 +35,7 @@ func (Sized32Test) Exists() {
 }
 
 func (Sized32Test) SizeLessThanBucket() {
-	s := NewSized32(uint32(BUCKET_SIZE) - 1)
+	s := NewSized32(uint32(bucketSize) - 1)
 	s.Set(32)
 	expect.Expect(s.Exists(32)).To.Equal(true)
 	expect.Expect(s.Exists(33)).To.Equal(false)
@@ -109,12 +109,9 @@ func Benchmark_Sized32DenseExists(b *testing.B) {
 	for i := uint32(0); i < 1000000; i++ {
 		s.Set(i)
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(uint32(i%1000000)) == false {
-			misses++
-		}
+		s.Exists(uint32(i % 1000000))
 	}
 }
 
@@ -125,11 +122,8 @@ func Benchmark_Sized32SparseExists(b *testing.B) {
 			s.Set(i)
 		}
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(uint32(i%1000000)) == false {
-			misses++
-		}
+		s.Exists(uint32(i % 1000000))
 	}
 }

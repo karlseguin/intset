@@ -5,9 +5,10 @@ import (
 	"sort"
 )
 
-var (
-	BUCKET_SIZE    = 32
-	BUCKET_GROW_BY = 8
+const (
+	bucketSize       int = 1
+	bucketGrowBy     int = 1
+	bucketMultiplier int = 1
 )
 
 type Set interface {
@@ -37,11 +38,11 @@ type Sized struct {
 }
 
 func NewSized(size int) *Sized {
-	if size < BUCKET_SIZE {
+	if size < bucketSize {
 		//random, no clue what to make it
-		size = BUCKET_SIZE * 2
+		size = bucketSize * bucketMultiplier
 	}
-	count := upTwo(size / BUCKET_SIZE)
+	count := upTwo(size / bucketSize)
 	s := &Sized{
 		mask:    count - 1,
 		buckets: make([][]int, count),
@@ -59,7 +60,7 @@ func (s *Sized) Set(value int) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]int, l, l+BUCKET_GROW_BY)
+		n := make([]int, l, l+bucketGrowBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -120,7 +121,7 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 		return l, true
 	}
 
-	offset, i := 0, 0
+	var offset, i int
 	if value > v {
 		offset = l
 		bucket = bucket[offset:]

@@ -36,7 +36,7 @@ func (SizedTest) Exists() {
 }
 
 func (SizedTest) SizeLessThanBucket() {
-	s := NewSized(BUCKET_SIZE - 1)
+	s := NewSized(bucketSize - 1)
 	s.Set(32)
 	expect.Expect(s.Exists(32)).To.Equal(true)
 	expect.Expect(s.Exists(33)).To.Equal(false)
@@ -112,12 +112,9 @@ func Benchmark_SizedDenseExists(b *testing.B) {
 	for i := 0; i < 1000000; i++ {
 		s.Set(i)
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(i%1000000) == false {
-			misses++
-		}
+		s.Exists(i % 1000000)
 	}
 }
 
@@ -128,12 +125,9 @@ func Benchmark_SizedSparseExists(b *testing.B) {
 			s.Set(i)
 		}
 	}
-	misses := 0
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if s.Exists(i%1000000) == false {
-			misses++
-		}
+		s.Exists(i % 1000000)
 	}
 }
 

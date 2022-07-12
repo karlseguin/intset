@@ -30,11 +30,11 @@ type Rune struct {
 }
 
 func NewRune(size rune) *Rune {
-	if size < rune(BUCKET_SIZE) {
+	if size < rune(bucketSize) {
 		//random, no clue what to make it
-		size = rune(BUCKET_SIZE * 2)
+		size = rune(bucketSize) * rune(bucketMultiplier)
 	}
-	count := upTwo(int(size) / BUCKET_SIZE)
+	count := upTwo(int(size) / bucketSize)
 	s := &Rune{
 		mask:    rune(count) - 1,
 		buckets: make([][]rune, count),
@@ -51,7 +51,7 @@ func (s *Rune) Set(value rune) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]rune, l, l+BUCKET_GROW_BY)
+		n := make([]rune, l, l+bucketGrowBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -110,7 +110,7 @@ func (s Rune) index(value rune, bucket []rune) (int, bool) {
 		return l, true
 	}
 
-	offset, i := 0, 0
+	var offset, i int
 	if value > v {
 		offset = l
 		bucket = bucket[offset:]
