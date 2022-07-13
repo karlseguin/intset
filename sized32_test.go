@@ -3,63 +3,55 @@ package intset
 import (
 	"math/rand"
 	"testing"
-
-	expect "github.com/karlseguin/expect"
 )
 
-type Sized32Test struct{}
-
-func Test_Sized32(t *testing.T) {
-	expect.Expectify(new(Sized32Test), t)
-}
-
-func (Sized32Test) SetsAValue() {
+func Test_Sized32_SetsAValue(t *testing.T) {
 	s := NewSized32(20)
 	for i := uint32(0); i < 30; i++ {
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 	for i := uint32(0); i < 30; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (Sized32Test) Exists() {
+func Test_Sized32_Exists(t *testing.T) {
 	s := NewSized32(20)
 	for i := uint32(0); i < 10; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(false)
+		AssertFalse(t, s.Exists(i))
 		s.Set(i)
 	}
 	for i := uint32(0); i < 10; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (Sized32Test) SizeLessThanBucket() {
+func Test_Sized32_SizeLessThanBucket(t *testing.T) {
 	s := NewSized32(uint32(bucketSize) - 1)
 	s.Set(32)
-	expect.Expect(s.Exists(32)).To.Equal(true)
-	expect.Expect(s.Exists(33)).To.Equal(false)
+	AssertTrue(t, s.Exists(32))
+	AssertFalse(t, s.Exists(33))
 }
 
-func (Sized32Test) RemoveNonMembers() {
+func Test_Sized32_RemoveNonMembers(t *testing.T) {
 	s := NewSized32(100)
-	expect.Expect(s.Remove(329)).To.Equal(false)
+	AssertFalse(t, s.Remove(329))
 }
 
-func (Sized32Test) RemovesMembers() {
+func Test_Sized32_RemovesMembers(t *testing.T) {
 	s := NewSized32(100)
 	for i := uint32(0); i < 10; i++ {
 		s.Set(i)
 	}
-	expect.Expect(s.Remove(20)).To.Equal(false)
-	expect.Expect(s.Remove(2)).To.Equal(true)
-	expect.Expect(s.Remove(2)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(false)
-	expect.Expect(s.Len()).To.Equal(9)
+	AssertFalse(t, s.Remove(20))
+	AssertTrue(t, s.Remove(2))
+	AssertFalse(t, s.Remove(2))
+	AssertFalse(t, s.Exists(2))
+	AssertEqual(t, s.Len(), 9)
 }
 
-func (Sized32Test) IntersectsTwoSets() {
+func Test_Sized32_IntersectsTwoSets(t *testing.T) {
 	s1 := NewSized32(10)
 	s2 := NewSized32(10)
 	s1.Set(1)
@@ -71,14 +63,14 @@ func (Sized32Test) IntersectsTwoSets() {
 	s2.Set(4)
 
 	s := Intersect32([]Set32{s1, s2})
-	expect.Expect(s.Exists(1)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(true)
-	expect.Expect(s.Exists(3)).To.Equal(true)
-	expect.Expect(s.Exists(4)).To.Equal(false)
-	expect.Expect(s.Exists(5)).To.Equal(false)
+	AssertFalse(t, s.Exists(1))
+	AssertTrue(t, s.Exists(2))
+	AssertTrue(t, s.Exists(3))
+	AssertFalse(t, s.Exists(4))
+	AssertFalse(t, s.Exists(5))
 }
 
-func (Sized32Test) UnionsTwoSets() {
+func Test_Sized32_UnionsTwoSets(t *testing.T) {
 	s1 := NewSized32(10)
 	s2 := NewSized32(10)
 	s1.Set(1)
@@ -90,11 +82,11 @@ func (Sized32Test) UnionsTwoSets() {
 	s2.Set(4)
 
 	s := Union32([]Set32{s1, s2})
-	expect.Expect(s.Exists(1)).To.Equal(true)
-	expect.Expect(s.Exists(2)).To.Equal(true)
-	expect.Expect(s.Exists(3)).To.Equal(true)
-	expect.Expect(s.Exists(4)).To.Equal(true)
-	expect.Expect(s.Exists(5)).To.Equal(false)
+	AssertTrue(t, s.Exists(1))
+	AssertTrue(t, s.Exists(2))
+	AssertTrue(t, s.Exists(3))
+	AssertTrue(t, s.Exists(4))
+	AssertFalse(t, s.Exists(5))
 }
 
 func Benchmark_Sized32Populate(b *testing.B) {
