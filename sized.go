@@ -3,23 +3,25 @@ package intset
 
 import "sort"
 
-type intSet interface {
+// Set defines int set methods
+type Set interface {
 	Len() int
 	Exists(value int) bool
 	Each(f func(value int))
 }
 
-type intSets []intSet
+// Sets is array of Set
+type Sets []Set
 
-func (s intSets) Len() int {
+func (s Sets) Len() int {
 	return len(s)
 }
 
-func (s intSets) Less(i, j int) bool {
+func (s Sets) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s intSets) Swap(i, j int) {
+func (s Sets) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -150,7 +152,7 @@ func (s Sized) exists(value int, bucket []int) bool {
 }
 
 // Intersect returns the intersection of an array of sets
-func Intersect(sets intSets) *Sized {
+func Intersect(sets Sets) *Sized {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]int, 0, a.Len())
@@ -170,7 +172,7 @@ func Intersect(sets intSets) *Sized {
 }
 
 // Union returns the union of an array of sets
-func Union(sets intSets) *Sized {
+func Union(sets Sets) *Sized {
 	values := make(map[int]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value int) {

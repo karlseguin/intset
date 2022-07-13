@@ -3,23 +3,25 @@ package intset
 
 import "sort"
 
-type uint32Set interface {
+// Set32 defines uint32 set methods
+type Set32 interface {
 	Len() int
 	Exists(value uint32) bool
 	Each(f func(value uint32))
 }
 
-type uint32Sets []uint32Set
+// Sets32 is array of Set32
+type Sets32 []Set32
 
-func (s uint32Sets) Len() int {
+func (s Sets32) Len() int {
 	return len(s)
 }
 
-func (s uint32Sets) Less(i, j int) bool {
+func (s Sets32) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s uint32Sets) Swap(i, j int) {
+func (s Sets32) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -150,7 +152,7 @@ func (s Sized32) exists(value uint32, bucket []uint32) bool {
 }
 
 // Intersect32 returns the intersection of an array of sets
-func Intersect32(sets uint32Sets) *Sized32 {
+func Intersect32(sets Sets32) *Sized32 {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]uint32, 0, a.Len())
@@ -170,7 +172,7 @@ func Intersect32(sets uint32Sets) *Sized32 {
 }
 
 // Union32 returns the union of an array of sets
-func Union32(sets uint32Sets) *Sized32 {
+func Union32(sets Sets32) *Sized32 {
 	values := make(map[uint32]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value uint32) {
