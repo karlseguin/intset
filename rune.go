@@ -3,23 +3,25 @@ package intset
 
 import "sort"
 
-type runeSet interface {
+// Rune defines rune set methods
+type Rune interface {
 	Len() int
 	Exists(value rune) bool
 	Each(f func(value rune))
 }
 
-type runeSets []runeSet
+// Runes is array of Rune
+type Runes []Rune
 
-func (s runeSets) Len() int {
+func (s Runes) Len() int {
 	return len(s)
 }
 
-func (s runeSets) Less(i, j int) bool {
+func (s Runes) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s runeSets) Swap(i, j int) {
+func (s Runes) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -150,7 +152,7 @@ func (s SizedRune) exists(value rune, bucket []rune) bool {
 }
 
 // IntersectRune returns the intersection of an array of sets
-func IntersectRune(sets runeSets) *SizedRune {
+func IntersectRune(sets Runes) *SizedRune {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]rune, 0, a.Len())
@@ -170,7 +172,7 @@ func IntersectRune(sets runeSets) *SizedRune {
 }
 
 // UnionRune returns the union of an array of sets
-func UnionRune(sets runeSets) *SizedRune {
+func UnionRune(sets Runes) *SizedRune {
 	values := make(map[rune]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value rune) {

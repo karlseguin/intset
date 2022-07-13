@@ -70,7 +70,7 @@ func (SizedTest) IntersectsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Intersect([]intSet{s1, s2})
+	s := Intersect([]Set{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(false)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -90,7 +90,7 @@ func (SizedTest) UnionsTwoSets() {
 		s2.Set(3)
 		s2.Set(4)
 
-		s := Union([]intSet{s1, s2})
+		s := Union([]Set{s1, s2})
 		expect.Expect(s.Exists(1)).To.Equal(true)
 		expect.Expect(s.Exists(2)).To.Equal(true)
 		expect.Expect(s.Exists(3)).To.Equal(true)
@@ -146,7 +146,7 @@ func Benchmark_SizedDenseIntersect(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Intersect([]intSet{s1, s2})
+		Intersect([]Set{s1, s2})
 	}
 }
 

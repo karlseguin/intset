@@ -70,7 +70,7 @@ func (Sized32Test) IntersectsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Intersect32([]uint32Set{s1, s2})
+	s := Intersect32([]Set32{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(false)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -89,7 +89,7 @@ func (Sized32Test) UnionsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Union32([]uint32Set{s1, s2})
+	s := Union32([]Set32{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(true)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -144,7 +144,7 @@ func Benchmark_Sized32DenseIntersect(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Intersect32([]uint32Set{s1, s2})
+		Intersect32([]Set32{s1, s2})
 	}
 }
 
