@@ -70,7 +70,7 @@ func (RuneTest) IntersectsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := IntersectRune([]Rune{s1, s2})
+	s := IntersectRune([]SetRune{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(false)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -89,7 +89,7 @@ func (RuneTest) UnionsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := UnionRune([]Rune{s1, s2})
+	s := UnionRune([]SetRune{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(true)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -144,7 +144,7 @@ func Benchmark_RuneDenseIntersect(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		IntersectRune([]Rune{s1, s2})
+		IntersectRune([]SetRune{s1, s2})
 	}
 }
 
