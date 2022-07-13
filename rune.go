@@ -107,19 +107,17 @@ func (s Rune) index(value rune, bucket []rune) (int, bool) {
 	if value == v {
 		return l, true
 	}
-
-	var offset, i int
 	if value > v {
-		offset = l
-		bucket = bucket[offset:]
+		bucket = bucket[l:]
 	}
 
+	var i int
 	for i, v = range bucket {
 		if v >= value {
-			return offset + i, v == value
+			return l + i, v == value
 		}
 	}
-	return offset + i + 1, false
+	return l + i + 1, false
 }
 
 func (s Rune) exists(value rune, bucket []rune) bool {
