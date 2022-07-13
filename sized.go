@@ -1,45 +1,38 @@
-// integer set
+// Package intset provides a specialized set for integers or runes
 package intset
 
-import (
-	"sort"
-)
+import "sort"
 
-const (
-	bucketSize       int = 4
-	bucketGrowBy     int = 1
-	bucketMultiplier int = 1
-)
-
-type Set interface {
+type intSet interface {
 	Len() int
 	Exists(value int) bool
 	Each(f func(value int))
 }
 
-type Sets []Set
+type intSets []intSet
 
-func (s Sets) Len() int {
+func (s intSets) Len() int {
 	return len(s)
 }
 
-func (s Sets) Less(i, j int) bool {
+func (s intSets) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s Sets) Swap(i, j int) {
+func (s intSets) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
+// Sized stores int set data
 type Sized struct {
 	mask    int
 	buckets [][]int
 	length  int
 }
 
+// NewSized creates an empty int set with target capacity specified by size
 func NewSized(size int) *Sized {
 	if size < bucketSize {
-		//random, no clue what to make it
 		size = bucketSize * bucketMultiplier
 	}
 	count := upTwo(size / bucketSize)
@@ -50,7 +43,7 @@ func NewSized(size int) *Sized {
 	return s
 }
 
-// Sets a value
+// Set adds a value to the int set
 func (s *Sized) Set(value int) {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -73,7 +66,7 @@ func (s *Sized) Set(value int) {
 	s.buckets[index] = bucket
 }
 
-// Returns true if the value existed before being removed
+// Remove returns true if the value existed in the int set before being removed
 func (s *Sized) Remove(value int) bool {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -88,17 +81,17 @@ func (s *Sized) Remove(value int) bool {
 	return true
 }
 
-// Returns true if the value exists
+// Exists returns true if the value exists in the set
 func (s *Sized) Exists(value int) bool {
 	return s.exists(value, s.buckets[value&s.mask])
 }
 
-// Total number of elements in the set
+// Len returns the total number of elements in the set
 func (s Sized) Len() int {
 	return s.length
 }
 
-// Iterate through the set items
+// Each iterates through the set items and applies function f to each set item
 func (s Sized) Each(f func(value int)) {
 	for _, bucket := range s.buckets {
 		for _, value := range bucket {
@@ -156,7 +149,8 @@ func (s Sized) exists(value int, bucket []int) bool {
 	return false
 }
 
-func Intersect(sets Sets) *Sized {
+// Intersect returns the intersection of an array of sets
+func Intersect(sets intSets) *Sized {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]int, 0, a.Len())
@@ -175,7 +169,8 @@ func Intersect(sets Sets) *Sized {
 	return s
 }
 
-func Union(sets Sets) *Sized {
+// Union returns the union of an array of sets
+func Union(sets intSets) *Sized {
 	values := make(map[int]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value int) {
@@ -187,16 +182,4 @@ func Union(sets Sets) *Sized {
 		s.Set(value)
 	}
 	return s
-}
-
-// http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-func upTwo(v int) int {
-	v--
-	v |= v >> 1
-	v |= v >> 2
-	v |= v >> 4
-	v |= v >> 8
-	v |= v >> 16
-	v++
-	return v
 }

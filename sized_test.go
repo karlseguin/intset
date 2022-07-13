@@ -70,7 +70,7 @@ func (SizedTest) IntersectsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Intersect([]Set{s1, s2})
+	s := Intersect([]intSet{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(false)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -90,7 +90,7 @@ func (SizedTest) UnionsTwoSets() {
 		s2.Set(3)
 		s2.Set(4)
 
-		s := Union([]Set{s1, s2})
+		s := Union([]intSet{s1, s2})
 		expect.Expect(s.Exists(1)).To.Equal(true)
 		expect.Expect(s.Exists(2)).To.Equal(true)
 		expect.Expect(s.Exists(3)).To.Equal(true)
@@ -146,6 +146,32 @@ func Benchmark_SizedDenseIntersect(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Intersect([]Set{s1, s2})
+		Intersect([]intSet{s1, s2})
+	}
+}
+
+// Benchmarks for map[int]struct{}
+
+func Benchmark_SizedMapDenseExists(b *testing.B) {
+	s := make(map[int]struct{})
+	for i := 0; i < 1000000; i++ {
+		s[i] = struct{}{}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = s[i]
+	}
+}
+
+func Benchmark_SizedMapSparseExists(b *testing.B) {
+	s := make(map[int]struct{})
+	for i := 0; i < 1000000; i++ {
+		if i%10 == 0 {
+			s[i] = struct{}{}
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = s[i%1000000]
 	}
 }

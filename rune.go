@@ -1,48 +1,50 @@
-// integer set
+// Package intset provides a specialized set for integers or runes
 package intset
 
 import "sort"
 
-type SetRune interface {
+type runeSet interface {
 	Len() int
 	Exists(value rune) bool
 	Each(f func(value rune))
 }
 
-type SetsRune []SetRune
+type runeSets []runeSet
 
-func (s SetsRune) Len() int {
+func (s runeSets) Len() int {
 	return len(s)
 }
 
-func (s SetsRune) Less(i, j int) bool {
+func (s runeSets) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s SetsRune) Swap(i, j int) {
+func (s runeSets) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
-type Rune struct {
+// SizedRune stores rune set data
+type SizedRune struct {
 	mask    rune
 	buckets [][]rune
 	length  int
 }
 
-func NewRune(size rune) *Rune {
+// NewRune creates an empty rune set with target capacity specified by size
+func NewRune(size rune) *SizedRune {
 	if size < rune(bucketSize) {
-		//random, no clue what to make it
 		size = rune(bucketSize) * rune(bucketMultiplier)
 	}
 	count := upTwo(int(size) / bucketSize)
-	s := &Rune{
+	s := &SizedRune{
 		mask:    rune(count) - 1,
 		buckets: make([][]rune, count),
 	}
 	return s
 }
 
-func (s *Rune) Set(value rune) {
+// Set adds a value to the rune set
+func (s *SizedRune) Set(value rune) {
 	index := value & s.mask
 	bucket := s.buckets[index]
 	position, exists := s.index(value, bucket)
@@ -64,8 +66,8 @@ func (s *Rune) Set(value rune) {
 	s.buckets[index] = bucket
 }
 
-// returns true if the value existed
-func (s *Rune) Remove(value rune) bool {
+// Remove returns true if the value existed in the rune set before being removed
+func (s *SizedRune) Remove(value rune) bool {
 	index := value & s.mask
 	bucket := s.buckets[index]
 	position, exists := s.index(value, bucket)
@@ -79,16 +81,18 @@ func (s *Rune) Remove(value rune) bool {
 	return true
 }
 
-func (s *Rune) Exists(value rune) bool {
+// Exists returns true if the value exists in the set
+func (s *SizedRune) Exists(value rune) bool {
 	return s.exists(value, s.buckets[value&s.mask])
 }
 
-func (s Rune) Len() int {
+// Len returns the total number of elements in the set
+func (s SizedRune) Len() int {
 	return s.length
 }
 
-// Iterate through the set items
-func (s Rune) Each(f func(value rune)) {
+// Each iterates through the set items and applies function f to each set item
+func (s SizedRune) Each(f func(value rune)) {
 	for _, bucket := range s.buckets {
 		for _, value := range bucket {
 			f(value)
@@ -96,7 +100,7 @@ func (s Rune) Each(f func(value rune)) {
 	}
 }
 
-func (s Rune) index(value rune, bucket []rune) (int, bool) {
+func (s SizedRune) index(value rune, bucket []rune) (int, bool) {
 	l := len(bucket)
 	if l == 0 {
 		return 0, false
@@ -122,7 +126,7 @@ func (s Rune) index(value rune, bucket []rune) (int, bool) {
 	return l + i + 1, false
 }
 
-func (s Rune) exists(value rune, bucket []rune) bool {
+func (s SizedRune) exists(value rune, bucket []rune) bool {
 	l := len(bucket)
 	if l == 0 {
 		return false
@@ -145,7 +149,8 @@ func (s Rune) exists(value rune, bucket []rune) bool {
 	return false
 }
 
-func IntersectRune(sets SetsRune) *Rune {
+// IntersectRune returns the intersection of an array of sets
+func IntersectRune(sets runeSets) *SizedRune {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]rune, 0, a.Len())
@@ -164,7 +169,8 @@ func IntersectRune(sets SetsRune) *Rune {
 	return s
 }
 
-func UnionRune(sets SetsRune) *Rune {
+// UnionRune returns the union of an array of sets
+func UnionRune(sets runeSets) *SizedRune {
 	values := make(map[rune]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value rune) {

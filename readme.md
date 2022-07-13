@@ -1,30 +1,32 @@
 # IntSet
 
-A specialized set for integers, ideal when:
+[![Go Reference](https://img.shields.io/badge/go-reference-blue?logo=go&logoColor=white&style=for-the-badge)](https://pkg.go.dev/github.com/karlseguin/intset)
+[![Go Report Card](https://goreportcard.com/badge/github.com/karlseguin/intset?style=for-the-badge)](https://goreportcard.com/report/github.com/karlseguin/intset)
+[![GitHub license](https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge)](LICENSE)
+
+A specialized set for integers or runes, ideal when:
 
 - The number of elements is known ahead of time (or a good approximation)
 - The number of elements doesn't change drastically over time
 - The values are naturally random
 
-As long as the number of elements within the set stays close to the originally specified size (I don't know the magic number, so let's say ±10%), and that they stay evenly distributed. the set will exhibit good read and write performance, as well as decent memory usage. When packed, read performance is roughly 2x better than a map[int]struct{} with memory usage less than 1/2.
+As long as the number of elements within the set stays close to the originally specified size (I don't know the magic number, so let's say ±10%), and that they stay evenly distributed. the set will exhibit good read and write performance, as well as decent memory usage. When packed, read performance is roughly 7 times better than a map[int]struct{}.
 
 ```go
-set := intset.NewSized(1000000)  //or intset.NewSized32(100000) or intset.NewRune(100000)
+set := intset.NewSized(1000000)  // or intset.NewSized32(100000) or intset.NewRune(100000)
 set.Set(32)
 set.Exists(32)
 ```
 
 ## Methods
 
-The `int`, `uint32` and `rune` variations have the same API (except for the obvious difference that each variation deals with `int`, `uint32`, and `rune` respectively).
+The `int`, `uint32` and `rune` variations have the same API.
 
-- `Set(int)`
-- `Exits(int) bool`
-- `Remove(int) bool`
+- `Set(int)` or `Set(uint32)` or `Set(rune)`
+- `Exists(int) bool` or `Exists(uint32) bool` or `Exists(rune) bool`
+- `Remove(int) bool` or `Remove(uint32) bool` or `Remove(rune) bool`
 - `Len() int`
-- `Each(f func(value int))`
-
-(It's hopefully obviously where a `uint32` is expected when dealing with the `uint32` variant, likewise for the `rune` variant)
+- `Each(f func(value int))` or `Each(f func(value uint32))` or `Each(f func(value rune))`
 
 ## Intersections and Unions
 
@@ -34,9 +36,9 @@ The method is called via:
 
 ```go
 result := intset.Intersect([]Set{s1, s2})
-//or
+// or
 result := intset.Intersect32([]Set32{s1, s2})
-//or
+// or
 result := intset.IntersectRune([]Set32{s1, s2})
 ```
 

@@ -1,6 +1,7 @@
 package intset
 
 import (
+	"math/rand"
 	"testing"
 
 	expect "github.com/karlseguin/expect"
@@ -69,7 +70,7 @@ func (Sized32Test) IntersectsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Intersect32([]Set32{s1, s2})
+	s := Intersect32([]uint32Set{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(false)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -88,7 +89,7 @@ func (Sized32Test) UnionsTwoSets() {
 	s2.Set(3)
 	s2.Set(4)
 
-	s := Union32([]Set32{s1, s2})
+	s := Union32([]uint32Set{s1, s2})
 	expect.Expect(s.Exists(1)).To.Equal(true)
 	expect.Expect(s.Exists(2)).To.Equal(true)
 	expect.Expect(s.Exists(3)).To.Equal(true)
@@ -125,5 +126,50 @@ func Benchmark_Sized32SparseExists(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.Exists(uint32(i % 1000000))
+	}
+}
+
+func Benchmark_Sized32DenseIntersect(b *testing.B) {
+	s1 := NewSized32(100000)
+	for i := uint32(0); i < 100000; i++ {
+		if rand.Intn(10) != 0 {
+			s1.Set(i)
+		}
+	}
+	s2 := NewSized32(1000)
+	for i := uint32(0); i < 1000; i++ {
+		if rand.Intn(10) != 0 {
+			s2.Set(i)
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Intersect32([]uint32Set{s1, s2})
+	}
+}
+
+// Benchmarks for map[uint32]struct{}
+
+func Benchmark_Sized32MapDenseExists(b *testing.B) {
+	s := make(map[uint32]struct{})
+	for i := uint32(0); i < 1000000; i++ {
+		s[i] = struct{}{}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = s[uint32(i)]
+	}
+}
+
+func Benchmark_Sized32MapSparseExists(b *testing.B) {
+	s := make(map[uint32]struct{})
+	for i := uint32(0); i < 1000000; i++ {
+		if i%10 == 0 {
+			s[i] = struct{}{}
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = s[uint32(i%1000000)]
 	}
 }

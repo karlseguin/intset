@@ -1,39 +1,38 @@
-// integer set
+// Package intset provides a specialized set for integers or runes
 package intset
 
-import (
-	"sort"
-)
+import "sort"
 
-type Set32 interface {
+type uint32Set interface {
 	Len() int
 	Exists(value uint32) bool
 	Each(f func(value uint32))
 }
 
-type Sets32 []Set32
+type uint32Sets []uint32Set
 
-func (s Sets32) Len() int {
+func (s uint32Sets) Len() int {
 	return len(s)
 }
 
-func (s Sets32) Less(i, j int) bool {
+func (s uint32Sets) Less(i, j int) bool {
 	return s[i].Len() < s[j].Len()
 }
 
-func (s Sets32) Swap(i, j int) {
+func (s uint32Sets) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
+// Sized32 stores uint32 set data
 type Sized32 struct {
 	mask    uint32
 	buckets [][]uint32
 	length  int
 }
 
+// NewSized32 creates an empty uint32 set with target capacity specified by size
 func NewSized32(size uint32) *Sized32 {
 	if size < uint32(bucketSize) {
-		//random, no clue what to make it
 		size = uint32(bucketSize) * uint32(bucketMultiplier)
 	}
 	count := upTwo(int(size) / bucketSize)
@@ -44,6 +43,7 @@ func NewSized32(size uint32) *Sized32 {
 	return s
 }
 
+// Set adds a value to the uint32 set
 func (s *Sized32) Set(value uint32) {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -66,7 +66,7 @@ func (s *Sized32) Set(value uint32) {
 	s.buckets[index] = bucket
 }
 
-// returns true if the value existed
+// Remove returns true if the value existed in the uint32 set before being removed
 func (s *Sized32) Remove(value uint32) bool {
 	index := value & s.mask
 	bucket := s.buckets[index]
@@ -81,15 +81,17 @@ func (s *Sized32) Remove(value uint32) bool {
 	return true
 }
 
+// Exists returns true if the value exists in the set
 func (s *Sized32) Exists(value uint32) bool {
 	return s.exists(value, s.buckets[value&s.mask])
 }
 
+// Len returns the total number of elements in the set
 func (s Sized32) Len() int {
 	return s.length
 }
 
-// Iterate through the set items
+// Each iterates through the set items and applies function f to each set item
 func (s Sized32) Each(f func(value uint32)) {
 	for _, bucket := range s.buckets {
 		for _, value := range bucket {
@@ -147,7 +149,8 @@ func (s Sized32) exists(value uint32, bucket []uint32) bool {
 	return false
 }
 
-func Intersect32(sets Sets32) *Sized32 {
+// Intersect32 returns the intersection of an array of sets
+func Intersect32(sets uint32Sets) *Sized32 {
 	sort.Sort(sets)
 	a, l := sets[0], sets.Len()
 	values := make([]uint32, 0, a.Len())
@@ -166,7 +169,8 @@ func Intersect32(sets Sets32) *Sized32 {
 	return s
 }
 
-func Union32(sets Sets32) *Sized32 {
+// Union32 returns the union of an array of sets
+func Union32(sets uint32Sets) *Sized32 {
 	values := make(map[uint32]struct{}, sets[0].Len())
 	for i := 0; i < sets.Len(); i++ {
 		sets[i].Each(func(value uint32) {
