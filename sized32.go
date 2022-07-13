@@ -30,17 +30,24 @@ type Sized32 struct {
 	mask    uint32
 	buckets [][]uint32
 	length  int
+	growBy  int
+}
+
+// NewSized creates an empty int set with target capacity specified by size
+func NewSized32(size uint32) *Sized32 {
+	return NewSized32Config(size, Default)
 }
 
 // NewSized32 creates an empty uint32 set with target capacity specified by size
-func NewSized32(size uint32) *Sized32 {
-	if size < uint32(bucketSize) {
-		size = uint32(bucketSize) * uint32(bucketMultiplier)
+func NewSized32Config(size uint32, config *Config) *Sized32 {
+	if size < uint32(config.bucketSize) {
+		size = uint32(config.bucketSize)
 	}
-	count := upTwo(int(size) / bucketSize)
+	count := upTwo(int(size) / config.bucketSize)
 	s := &Sized32{
 		mask:    uint32(count) - 1,
 		buckets: make([][]uint32, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -55,7 +62,7 @@ func (s *Sized32) Set(value uint32) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]uint32, l, l+bucketGrowBy)
+		n := make([]uint32, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}

@@ -30,17 +30,23 @@ type Rune struct {
 	mask    rune
 	buckets [][]rune
 	length  int
+	growBy  int
+}
+
+func NewRune(size rune) *Rune {
+	return NewRuneConfig(size, Default)
 }
 
 // NewRune creates an empty rune set with target capacity specified by size
-func NewRune(size rune) *Rune {
-	if size < rune(bucketSize) {
-		size = rune(bucketSize) * rune(bucketMultiplier)
+func NewRuneConfig(size rune, config *Config) *Rune {
+	if size < rune(config.bucketSize) {
+		size = rune(config.bucketSize)
 	}
-	count := upTwo(int(size) / bucketSize)
+	count := upTwo(int(size) / config.bucketSize)
 	s := &Rune{
 		mask:    rune(count) - 1,
 		buckets: make([][]rune, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -55,7 +61,7 @@ func (s *Rune) Set(value rune) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]rune, l, l+bucketGrowBy)
+		n := make([]rune, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}

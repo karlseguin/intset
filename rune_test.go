@@ -28,7 +28,7 @@ func Test_Rune_Exists(t *testing.T) {
 }
 
 func Test_Rune_SizeLessThanBucket(t *testing.T) {
-	s := NewRune(rune(bucketSize) - 1)
+	s := NewRune(rune(Default.bucketSize) - 1)
 	s.Set(32)
 	AssertTrue(t, s.Exists(32))
 	AssertFalse(t, s.Exists(33))

@@ -17,7 +17,7 @@ func Test_Sized_SetsAValue(t *testing.T) {
 }
 
 func Test_Sized_Exists(t *testing.T) {
-	s := NewSized(20)
+	s := NewSizedConfig(20, NewConfig())
 	for i := 0; i < 100; i++ {
 		AssertFalse(t, s.Exists(i))
 		s.Set(i)
@@ -28,7 +28,8 @@ func Test_Sized_Exists(t *testing.T) {
 }
 
 func Test_Sized_SizeLessThanBucket(t *testing.T) {
-	s := NewSized(bucketSize - 1)
+	config := NewConfig().BucketSize(8).BucketGrowBy(4)
+	s := NewSizedConfig(7, config)
 	s.Set(32)
 	AssertTrue(t, s.Exists(32))
 	AssertFalse(t, s.Exists(33))

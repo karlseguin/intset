@@ -1,8 +1,6 @@
 // Package intset provides a specialized set for integers or runes
 package intset
 
-const bucketSize, bucketGrowBy, bucketMultiplier int = 4, 1, 1
-
 // http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 func upTwo(v int) int {
 	v--

@@ -30,17 +30,24 @@ type Sized struct {
 	mask    int
 	buckets [][]int
 	length  int
+	growBy  int
+}
+
+// NewSized creates an empty int set with target capacity using default configuration
+func NewSized(size int) *Sized {
+	return NewSizedConfig(size, Default)
 }
 
 // NewSized creates an empty int set with target capacity specified by size
-func NewSized(size int) *Sized {
-	if size < bucketSize {
-		size = bucketSize * bucketMultiplier
+func NewSizedConfig(size int, config *Config) *Sized {
+	if size < config.bucketSize {
+		size = config.bucketSize
 	}
-	count := upTwo(size / bucketSize)
+	count := upTwo(size / config.bucketSize)
 	s := &Sized{
 		mask:    count - 1,
 		buckets: make([][]int, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -55,7 +62,7 @@ func (s *Sized) Set(value int) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]int, l, l+bucketGrowBy)
+		n := make([]int, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}

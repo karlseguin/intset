@@ -17,7 +17,7 @@ func Test_Sized32_SetsAValue(t *testing.T) {
 }
 
 func Test_Sized32_Exists(t *testing.T) {
-	s := NewSized32(20)
+	s := NewSized32Config(20, NewConfig())
 	for i := uint32(0); i < 10; i++ {
 		AssertFalse(t, s.Exists(i))
 		s.Set(i)
@@ -28,7 +28,8 @@ func Test_Sized32_Exists(t *testing.T) {
 }
 
 func Test_Sized32_SizeLessThanBucket(t *testing.T) {
-	s := NewSized32(uint32(bucketSize) - 1)
+	config := NewConfig().BucketSize(8).BucketGrowBy(4)
+	s := NewSized32Config(7, config)
 	s.Set(32)
 	AssertTrue(t, s.Exists(32))
 	AssertFalse(t, s.Exists(33))
