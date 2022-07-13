@@ -109,6 +109,8 @@ func (s Rune) index(value rune, bucket []rune) (int, bool) {
 	}
 	if value > v {
 		bucket = bucket[l:]
+	} else {
+		l = 0
 	}
 
 	var i int

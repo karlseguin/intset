@@ -111,6 +111,8 @@ func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 	}
 	if value > v {
 		bucket = bucket[l:]
+	} else {
+		l = 0
 	}
 
 	var i int

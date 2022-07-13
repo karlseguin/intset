@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	bucketSize       int = 1
+	bucketSize       int = 4
 	bucketGrowBy     int = 1
 	bucketMultiplier int = 1
 )
@@ -120,6 +120,8 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 	}
 	if value > v {
 		bucket = bucket[l:]
+	} else {
+		l = 0
 	}
 
 	var i int
