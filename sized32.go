@@ -27,20 +27,25 @@ func (s Sets32) Swap(i, j int) {
 
 // Sized32 stores uint32 set data
 type Sized32 struct {
-	mask    uint32
-	buckets [][]uint32
-	length  int
+	mask         uint32
+	buckets      [][]uint32
+	length       int
+	bucketGrowBy int
 }
 
 // NewSized32 creates an empty uint32 set with target capacity specified by size
-func NewSized32(size uint32) *Sized32 {
-	if size < uint32(bucketSize) {
-		size = uint32(bucketSize) * uint32(bucketMultiplier)
+func NewSized32(size uint32, config BucketConfig) *Sized32 {
+	config.bucketSize, config.bucketMultiplier,
+		config.bucketGrowBy = setDefaultBucketConfig(config.bucketSize,
+		config.bucketMultiplier, config.bucketGrowBy)
+	if size < uint32(config.bucketSize) {
+		size = uint32(config.bucketSize) * uint32(config.bucketMultiplier)
 	}
-	count := upTwo(int(size) / bucketSize)
+	count := upTwo(int(size) / config.bucketSize)
 	s := &Sized32{
-		mask:    uint32(count) - 1,
-		buckets: make([][]uint32, count),
+		mask:         uint32(count) - 1,
+		buckets:      make([][]uint32, count),
+		bucketGrowBy: config.bucketGrowBy,
 	}
 	return s
 }
@@ -55,7 +60,7 @@ func (s *Sized32) Set(value uint32) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]uint32, l, l+bucketGrowBy)
+		n := make([]uint32, l, l+s.bucketGrowBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -164,7 +169,7 @@ func Intersect32(sets Sets32) *Sized32 {
 		}
 		values = append(values, value)
 	})
-	s := NewSized32(uint32(len(values)))
+	s := NewSized32(uint32(len(values)), BucketConfig{})
 	for _, value := range values {
 		s.Set(value)
 	}
@@ -179,7 +184,7 @@ func Union32(sets Sets32) *Sized32 {
 			values[value] = struct{}{}
 		})
 	}
-	s := NewSized32(uint32(len(values)))
+	s := NewSized32(uint32(len(values)), BucketConfig{})
 	for value := range values {
 		s.Set(value)
 	}

@@ -2,7 +2,7 @@
 
 [![Go Reference](https://img.shields.io/badge/go-reference-blue?logo=go&logoColor=white&style=for-the-badge)](https://pkg.go.dev/github.com/karlseguin/intset)
 [![Go Report Card](https://goreportcard.com/badge/github.com/karlseguin/intset?style=for-the-badge)](https://goreportcard.com/report/github.com/karlseguin/intset)
-[![GitHub license](https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge)](LICENSE)
+[![GitHub license](https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge)](license.txt)
 
 A specialized set for integers or runes, ideal when:
 
@@ -13,7 +13,7 @@ A specialized set for integers or runes, ideal when:
 As long as the number of elements within the set stays close to the originally specified size (I don't know the magic number, so let's say ±10%), and that they stay evenly distributed. the set will exhibit good read and write performance, as well as decent memory usage. When packed, read performance is roughly 7 times better than a map[int]struct{}.
 
 ```go
-set := intset.NewSized(1000000)  // or intset.NewSized32(100000) or intset.NewRune(100000)
+set := intset.NewSized(1000000, BucketConfig{})  // or intset.NewSized32(1000000, BucketConfig{}) or intset.NewRune(1000000, BucketConfig{})
 set.Set(32)
 set.Exists(32)
 ```

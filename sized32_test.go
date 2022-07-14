@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	expect "github.com/karlseguin/expect"
+	"github.com/karlseguin/expect"
 )
 
 type Sized32Test struct{}
@@ -14,7 +14,7 @@ func Test_Sized32(t *testing.T) {
 }
 
 func (Sized32Test) SetsAValue() {
-	s := NewSized32(20)
+	s := NewSized32(20, BucketConfig{})
 	for i := uint32(0); i < 30; i++ {
 		s.Set(i)
 		expect.Expect(s.Exists(i)).To.Equal(true)
@@ -25,30 +25,30 @@ func (Sized32Test) SetsAValue() {
 }
 
 func (Sized32Test) Exists() {
-	s := NewSized32(20)
+	s := NewSized32(20, BucketConfig{})
 	for i := uint32(0); i < 10; i++ {
 		expect.Expect(s.Exists(i)).To.Equal(false)
 		s.Set(i)
-	}
-	for i := uint32(0); i < 10; i++ {
+		expect.Expect(s.Exists(i)).To.Equal(true)
+		s.Set(i)
 		expect.Expect(s.Exists(i)).To.Equal(true)
 	}
 }
 
 func (Sized32Test) SizeLessThanBucket() {
-	s := NewSized32(uint32(bucketSize) - 1)
+	s := NewSized32(3, BucketConfig{})
 	s.Set(32)
 	expect.Expect(s.Exists(32)).To.Equal(true)
 	expect.Expect(s.Exists(33)).To.Equal(false)
 }
 
 func (Sized32Test) RemoveNonMembers() {
-	s := NewSized32(100)
+	s := NewSized32(100, BucketConfig{})
 	expect.Expect(s.Remove(329)).To.Equal(false)
 }
 
 func (Sized32Test) RemovesMembers() {
-	s := NewSized32(100)
+	s := NewSized32(100, BucketConfig{})
 	for i := uint32(0); i < 10; i++ {
 		s.Set(i)
 	}
@@ -60,8 +60,8 @@ func (Sized32Test) RemovesMembers() {
 }
 
 func (Sized32Test) IntersectsTwoSets() {
-	s1 := NewSized32(10)
-	s2 := NewSized32(10)
+	s1 := NewSized32(10, BucketConfig{})
+	s2 := NewSized32(10, BucketConfig{})
 	s1.Set(1)
 	s1.Set(2)
 	s1.Set(3)
@@ -79,8 +79,8 @@ func (Sized32Test) IntersectsTwoSets() {
 }
 
 func (Sized32Test) UnionsTwoSets() {
-	s1 := NewSized32(10)
-	s2 := NewSized32(10)
+	s1 := NewSized32(10, BucketConfig{})
+	s2 := NewSized32(10, BucketConfig{})
 	s1.Set(1)
 	s1.Set(2)
 	s1.Set(3)
@@ -97,8 +97,21 @@ func (Sized32Test) UnionsTwoSets() {
 	expect.Expect(s.Exists(5)).To.Equal(false)
 }
 
+func (Sized32Test) Swap() {
+	s1 := NewSized32(1, BucketConfig{})
+	s1.Set(0)
+	s2 := NewSized32(1, BucketConfig{})
+	s2.Set(1)
+	s := Sets32{s1, s2}
+	s.Swap(0, 1)
+	expect.Expect(s[0].Exists(1)).To.Equal(true)
+	expect.Expect(s[0].Exists(0)).To.Equal(false)
+	expect.Expect(s[1].Exists(0)).To.Equal(true)
+	expect.Expect(s[1].Exists(1)).To.Equal(false)
+}
+
 func Benchmark_Sized32Populate(b *testing.B) {
-	s := NewSized32(10000000)
+	s := NewSized32(10000000, BucketConfig{})
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.Set(uint32(i % 10000000))
@@ -106,7 +119,7 @@ func Benchmark_Sized32Populate(b *testing.B) {
 }
 
 func Benchmark_Sized32DenseExists(b *testing.B) {
-	s := NewSized32(1000000)
+	s := NewSized32(1000000, BucketConfig{})
 	for i := uint32(0); i < 1000000; i++ {
 		s.Set(i)
 	}
@@ -117,7 +130,7 @@ func Benchmark_Sized32DenseExists(b *testing.B) {
 }
 
 func Benchmark_Sized32SparseExists(b *testing.B) {
-	s := NewSized32(1000000)
+	s := NewSized32(1000000, BucketConfig{})
 	for i := uint32(0); i < 1000000; i++ {
 		if i%10 == 0 {
 			s.Set(i)
@@ -130,13 +143,13 @@ func Benchmark_Sized32SparseExists(b *testing.B) {
 }
 
 func Benchmark_Sized32DenseIntersect(b *testing.B) {
-	s1 := NewSized32(100000)
+	s1 := NewSized32(100000, BucketConfig{})
 	for i := uint32(0); i < 100000; i++ {
 		if rand.Intn(10) != 0 {
 			s1.Set(i)
 		}
 	}
-	s2 := NewSized32(1000)
+	s2 := NewSized32(1000, BucketConfig{})
 	for i := uint32(0); i < 1000; i++ {
 		if rand.Intn(10) != 0 {
 			s2.Set(i)
