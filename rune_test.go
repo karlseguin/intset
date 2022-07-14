@@ -3,65 +3,57 @@ package intset
 import (
 	"math/rand"
 	"testing"
-
-	"github.com/karlseguin/expect"
 )
 
-type RuneTest struct{}
-
-func Test_Rune(t *testing.T) {
-	expect.Expectify(new(RuneTest), t)
-}
-
-func (RuneTest) SetsAValue() {
-	s := NewRune(20, BucketConfig{})
+func Test_Rune_SetsAValue(t *testing.T) {
+	s := NewRune(20)
 	for i := rune(0); i < 30; i++ {
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 	for i := rune(0); i < 30; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (RuneTest) Exists() {
-	s := NewRune(20, BucketConfig{})
+func Test_Rune_Exists(t *testing.T) {
+	s := NewRune(20)
 	for i := rune(0); i < 10; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(false)
+		AssertFalse(t, s.Exists(i))
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (RuneTest) SizeLessThanBucket() {
-	s := NewRune(3, BucketConfig{})
+func Test_Rune_SizeLessThanBucket(t *testing.T) {
+	s := NewRune(rune(Default.bucketSize) - 1)
 	s.Set(32)
-	expect.Expect(s.Exists(32)).To.Equal(true)
-	expect.Expect(s.Exists(33)).To.Equal(false)
+	AssertTrue(t, s.Exists(32))
+	AssertFalse(t, s.Exists(33))
 }
 
-func (RuneTest) RemoveNonMembers() {
-	s := NewRune(100, BucketConfig{})
-	expect.Expect(s.Remove(329)).To.Equal(false)
+func Test_Rune_RemoveNonMembers(t *testing.T) {
+	s := NewRune(100)
+	AssertFalse(t, s.Remove(329))
 }
 
-func (RuneTest) RemovesMembers() {
-	s := NewRune(100, BucketConfig{})
+func Test_Rune_RemovesMembers(t *testing.T) {
+	s := NewRune(100)
 	for i := rune(0); i < 10; i++ {
 		s.Set(i)
 	}
-	expect.Expect(s.Remove(20)).To.Equal(false)
-	expect.Expect(s.Remove(2)).To.Equal(true)
-	expect.Expect(s.Remove(2)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(false)
-	expect.Expect(s.Len()).To.Equal(9)
+	AssertFalse(t, s.Remove(20))
+	AssertTrue(t, s.Remove(2))
+	AssertFalse(t, s.Remove(2))
+	AssertFalse(t, s.Exists(2))
+	AssertEqual(t, s.Len(), 9)
 }
 
-func (RuneTest) IntersectsTwoSets() {
-	s1 := NewRune(10, BucketConfig{})
-	s2 := NewRune(10, BucketConfig{})
+func Test_Rune_IntersectsTwoSets(t *testing.T) {
+	s1 := NewRune(10)
+	s2 := NewRune(10)
 	s1.Set(1)
 	s1.Set(2)
 	s1.Set(3)
@@ -71,16 +63,16 @@ func (RuneTest) IntersectsTwoSets() {
 	s2.Set(4)
 
 	s := IntersectRune([]SetRune{s1, s2})
-	expect.Expect(s.Exists(1)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(true)
-	expect.Expect(s.Exists(3)).To.Equal(true)
-	expect.Expect(s.Exists(4)).To.Equal(false)
-	expect.Expect(s.Exists(5)).To.Equal(false)
+	AssertFalse(t, s.Exists(1))
+	AssertTrue(t, s.Exists(2))
+	AssertTrue(t, s.Exists(3))
+	AssertFalse(t, s.Exists(4))
+	AssertFalse(t, s.Exists(5))
 }
 
-func (RuneTest) UnionsTwoSets() {
-	s1 := NewRune(10, BucketConfig{})
-	s2 := NewRune(10, BucketConfig{})
+func Test_Rune_UnionsTwoSets(t *testing.T) {
+	s1 := NewRune(10)
+	s2 := NewRune(10)
 	s1.Set(1)
 	s1.Set(2)
 	s1.Set(3)
@@ -90,28 +82,28 @@ func (RuneTest) UnionsTwoSets() {
 	s2.Set(4)
 
 	s := UnionRune([]SetRune{s1, s2})
-	expect.Expect(s.Exists(1)).To.Equal(true)
-	expect.Expect(s.Exists(2)).To.Equal(true)
-	expect.Expect(s.Exists(3)).To.Equal(true)
-	expect.Expect(s.Exists(4)).To.Equal(true)
-	expect.Expect(s.Exists(5)).To.Equal(false)
+	AssertTrue(t, s.Exists(1))
+	AssertTrue(t, s.Exists(2))
+	AssertTrue(t, s.Exists(3))
+	AssertTrue(t, s.Exists(4))
+	AssertFalse(t, s.Exists(5))
 }
 
-func (RuneTest) Swap() {
-	s1 := NewRune(1, BucketConfig{})
+func Test_SwapRune(t *testing.T) {
+	s1 := NewRune(1)
 	s1.Set(0)
-	s2 := NewRune(1, BucketConfig{})
+	s2 := NewRune(1)
 	s2.Set(1)
 	s := SetsRune{s1, s2}
 	s.Swap(0, 1)
-	expect.Expect(s[0].Exists(1)).To.Equal(true)
-	expect.Expect(s[0].Exists(0)).To.Equal(false)
-	expect.Expect(s[1].Exists(0)).To.Equal(true)
-	expect.Expect(s[1].Exists(1)).To.Equal(false)
+	AssertTrue(t, s[0].Exists(1))
+	AssertFalse(t, s[0].Exists(0))
+	AssertTrue(t, s[1].Exists(0))
+	AssertFalse(t, s[1].Exists(1))
 }
 
 func Benchmark_RunePopulate(b *testing.B) {
-	s := NewRune(10000000, BucketConfig{})
+	s := NewRune(10000000)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.Set(rune(i % 10000000))
@@ -119,7 +111,7 @@ func Benchmark_RunePopulate(b *testing.B) {
 }
 
 func Benchmark_RuneDenseExists(b *testing.B) {
-	s := NewRune(1000000, BucketConfig{})
+	s := NewRune(1000000)
 	for i := rune(0); i < 1000000; i++ {
 		s.Set(i)
 	}
@@ -130,7 +122,7 @@ func Benchmark_RuneDenseExists(b *testing.B) {
 }
 
 func Benchmark_RuneSparseExists(b *testing.B) {
-	s := NewRune(1000000, BucketConfig{})
+	s := NewRune(1000000)
 	for i := rune(0); i < 1000000; i++ {
 		if i%10 == 0 {
 			s.Set(i)
@@ -143,13 +135,13 @@ func Benchmark_RuneSparseExists(b *testing.B) {
 }
 
 func Benchmark_RuneDenseIntersect(b *testing.B) {
-	s1 := NewRune(100000, BucketConfig{})
+	s1 := NewRune(100000)
 	for i := rune(0); i < 100000; i++ {
 		if rand.Intn(10) != 0 {
 			s1.Set(i)
 		}
 	}
-	s2 := NewRune(1000, BucketConfig{})
+	s2 := NewRune(1000)
 	for i := rune(0); i < 1000; i++ {
 		if rand.Intn(10) != 0 {
 			s2.Set(i)
@@ -162,6 +154,7 @@ func Benchmark_RuneDenseIntersect(b *testing.B) {
 }
 
 // Benchmarks for map[rune]struct{}
+// should be slower than intset
 
 func Benchmark_RuneMapDenseExists(b *testing.B) {
 	s := make(map[rune]struct{})
