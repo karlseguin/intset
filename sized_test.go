@@ -3,65 +3,58 @@ package intset
 import (
 	"math/rand"
 	"testing"
-
-	"github.com/karlseguin/expect"
 )
 
-type SizedTest struct{}
-
-func Test_Sized(t *testing.T) {
-	expect.Expectify(new(SizedTest), t)
-}
-
-func (SizedTest) SetsAValue() {
-	s := NewSized(20, BucketConfig{})
+func Test_Sized_SetsAValue(t *testing.T) {
+	s := NewSized(20)
 	for i := 0; i < 30; i++ {
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 	for i := 0; i < 30; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (SizedTest) Exists() {
-	s := NewSized(20, BucketConfig{})
+func Test_Sized_Exists(t *testing.T) {
+	s := NewSizedConfig(20, NewConfig())
 	for i := 0; i < 100; i++ {
-		expect.Expect(s.Exists(i)).To.Equal(false)
+		AssertFalse(t, s.Exists(i))
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 		s.Set(i)
-		expect.Expect(s.Exists(i)).To.Equal(true)
+		AssertTrue(t, s.Exists(i))
 	}
 }
 
-func (SizedTest) SizeLessThanBucket() {
-	s := NewSized(3, BucketConfig{})
+func Test_Sized_SizeLessThanBucket(t *testing.T) {
+	config := NewConfig().BucketSize(8).BucketGrowBy(4)
+	s := NewSizedConfig(7, config)
 	s.Set(32)
-	expect.Expect(s.Exists(32)).To.Equal(true)
-	expect.Expect(s.Exists(33)).To.Equal(false)
+	AssertTrue(t, s.Exists(32))
+	AssertFalse(t, s.Exists(33))
 }
 
-func (SizedTest) RemoveNonMembers() {
-	s := NewSized(100, BucketConfig{})
-	expect.Expect(s.Remove(329)).To.Equal(false)
+func Test_Sized_RemoveNonMembers(t *testing.T) {
+	s := NewSized(100)
+	AssertFalse(t, s.Remove(329))
 }
 
-func (SizedTest) RemovesMembers() {
-	s := NewSized(100, BucketConfig{})
+func Test_Sized_RemovesMembers(t *testing.T) {
+	s := NewSized(100)
 	for i := 0; i < 10; i++ {
 		s.Set(i)
 	}
-	expect.Expect(s.Remove(20)).To.Equal(false)
-	expect.Expect(s.Remove(2)).To.Equal(true)
-	expect.Expect(s.Remove(2)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(false)
-	expect.Expect(s.Len()).To.Equal(9)
+	AssertFalse(t, s.Remove(20))
+	AssertTrue(t, s.Remove(2))
+	AssertFalse(t, s.Remove(2))
+	AssertFalse(t, s.Exists(2))
+	AssertEqual(t, s.Len(), 9)
 }
 
-func (SizedTest) IntersectsTwoSets() {
-	s1 := NewSized(10, BucketConfig{})
-	s2 := NewSized(10, BucketConfig{})
+func Test_Sized_IntersectsTwoSets(t *testing.T) {
+	s1 := NewSized(10)
+	s2 := NewSized(10)
 	s1.Set(1)
 	s1.Set(2)
 	s1.Set(3)
@@ -71,17 +64,17 @@ func (SizedTest) IntersectsTwoSets() {
 	s2.Set(4)
 
 	s := Intersect([]Set{s1, s2})
-	expect.Expect(s.Exists(1)).To.Equal(false)
-	expect.Expect(s.Exists(2)).To.Equal(true)
-	expect.Expect(s.Exists(3)).To.Equal(true)
-	expect.Expect(s.Exists(4)).To.Equal(false)
-	expect.Expect(s.Exists(5)).To.Equal(false)
+	AssertFalse(t, s.Exists(1))
+	AssertTrue(t, s.Exists(2))
+	AssertTrue(t, s.Exists(3))
+	AssertFalse(t, s.Exists(4))
+	AssertFalse(t, s.Exists(5))
 }
 
-func (SizedTest) UnionsTwoSets() {
+func Test_Sized_UnionsTwoSets(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		s1 := NewSized(10, BucketConfig{})
-		s2 := NewSized(10, BucketConfig{})
+		s1 := NewSized(10)
+		s2 := NewSized(10)
 		s1.Set(1)
 		s1.Set(2)
 		s1.Set(3)
@@ -91,29 +84,29 @@ func (SizedTest) UnionsTwoSets() {
 		s2.Set(4)
 
 		s := Union([]Set{s1, s2})
-		expect.Expect(s.Exists(1)).To.Equal(true)
-		expect.Expect(s.Exists(2)).To.Equal(true)
-		expect.Expect(s.Exists(3)).To.Equal(true)
-		expect.Expect(s.Exists(4)).To.Equal(true)
-		expect.Expect(s.Exists(5)).To.Equal(false)
+		AssertTrue(t, s.Exists(1))
+		AssertTrue(t, s.Exists(2))
+		AssertTrue(t, s.Exists(3))
+		AssertTrue(t, s.Exists(4))
+		AssertFalse(t, s.Exists(5))
 	}
 }
 
-func (SizedTest) Swap() {
-	s1 := NewSized(1, BucketConfig{})
+func Test_Swap(t *testing.T) {
+	s1 := NewSized(1)
 	s1.Set(0)
-	s2 := NewSized(1, BucketConfig{})
+	s2 := NewSized(1)
 	s2.Set(1)
 	s := Sets{s1, s2}
 	s.Swap(0, 1)
-	expect.Expect(s[0].Exists(1)).To.Equal(true)
-	expect.Expect(s[0].Exists(0)).To.Equal(false)
-	expect.Expect(s[1].Exists(0)).To.Equal(true)
-	expect.Expect(s[1].Exists(1)).To.Equal(false)
+	AssertTrue(t, s[0].Exists(1))
+	AssertFalse(t, s[0].Exists(0))
+	AssertTrue(t, s[1].Exists(0))
+	AssertFalse(t, s[1].Exists(1))
 }
 
 func Benchmark_SizedPopulate(b *testing.B) {
-	s := NewSized(10000000, BucketConfig{})
+	s := NewSized(10000000)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.Set(i % 10000000)
@@ -121,7 +114,7 @@ func Benchmark_SizedPopulate(b *testing.B) {
 }
 
 func Benchmark_SizedDenseExists(b *testing.B) {
-	s := NewSized(1000000, BucketConfig{})
+	s := NewSized(1000000)
 	for i := 0; i < 1000000; i++ {
 		s.Set(i)
 	}
@@ -132,7 +125,7 @@ func Benchmark_SizedDenseExists(b *testing.B) {
 }
 
 func Benchmark_SizedSparseExists(b *testing.B) {
-	s := NewSized(1000000, BucketConfig{})
+	s := NewSized(1000000)
 	for i := 0; i < 1000000; i++ {
 		if i%10 == 0 {
 			s.Set(i)
@@ -145,13 +138,13 @@ func Benchmark_SizedSparseExists(b *testing.B) {
 }
 
 func Benchmark_SizedDenseIntersect(b *testing.B) {
-	s1 := NewSized(100000, BucketConfig{})
+	s1 := NewSized(100000)
 	for i := 0; i < 100000; i++ {
 		if rand.Intn(10) != 0 {
 			s1.Set(i)
 		}
 	}
-	s2 := NewSized(1000, BucketConfig{})
+	s2 := NewSized(1000)
 	for i := 0; i < 1000; i++ {
 		if rand.Intn(10) != 0 {
 			s2.Set(i)
@@ -164,6 +157,7 @@ func Benchmark_SizedDenseIntersect(b *testing.B) {
 }
 
 // Benchmarks for map[int]struct{}
+// should be slower than intset
 
 func Benchmark_SizedMapDenseExists(b *testing.B) {
 	s := make(map[int]struct{})

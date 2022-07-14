@@ -27,25 +27,27 @@ func (s Sets32) Swap(i, j int) {
 
 // Sized32 stores uint32 set data
 type Sized32 struct {
-	mask         uint32
-	buckets      [][]uint32
-	length       int
-	bucketGrowBy int
+	mask    uint32
+	buckets [][]uint32
+	length  int
+	growBy  int
 }
 
-// NewSized32 creates an empty uint32 set with target capacity specified by size
-func NewSized32(size uint32, config BucketConfig) *Sized32 {
-	config.bucketSize, config.bucketMultiplier,
-		config.bucketGrowBy = setDefaultBucketConfig(config.bucketSize,
-		config.bucketMultiplier, config.bucketGrowBy)
+// NewSized32 creates an empty int set with target capacity specified by size using default configuration
+func NewSized32(size uint32) *Sized32 {
+	return NewSized32Config(size, Default)
+}
+
+// NewSized32Config creates an empty uint32 set with target capacity specified by size
+func NewSized32Config(size uint32, config *Config) *Sized32 {
 	if size < uint32(config.bucketSize) {
-		size = uint32(config.bucketSize) * uint32(config.bucketMultiplier)
+		size = uint32(config.bucketSize)
 	}
 	count := upTwo(int(size) / config.bucketSize)
 	s := &Sized32{
-		mask:         uint32(count) - 1,
-		buckets:      make([][]uint32, count),
-		bucketGrowBy: config.bucketGrowBy,
+		mask:    uint32(count) - 1,
+		buckets: make([][]uint32, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -60,7 +62,7 @@ func (s *Sized32) Set(value uint32) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]uint32, l, l+s.bucketGrowBy)
+		n := make([]uint32, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -169,7 +171,7 @@ func Intersect32(sets Sets32) *Sized32 {
 		}
 		values = append(values, value)
 	})
-	s := NewSized32(uint32(len(values)), BucketConfig{})
+	s := NewSized32(uint32(len(values)))
 	for _, value := range values {
 		s.Set(value)
 	}
@@ -184,7 +186,7 @@ func Union32(sets Sets32) *Sized32 {
 			values[value] = struct{}{}
 		})
 	}
-	s := NewSized32(uint32(len(values)), BucketConfig{})
+	s := NewSized32(uint32(len(values)))
 	for value := range values {
 		s.Set(value)
 	}

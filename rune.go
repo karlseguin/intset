@@ -27,25 +27,27 @@ func (s SetsRune) Swap(i, j int) {
 
 // Rune stores rune set data
 type Rune struct {
-	mask         rune
-	buckets      [][]rune
-	length       int
-	bucketGrowBy int
+	mask    rune
+	buckets [][]rune
+	length  int
+	growBy  int
 }
 
-// NewRune creates an empty rune set with target capacity specified by size
-func NewRune(size rune, config BucketConfig) *Rune {
-	config.bucketSize, config.bucketMultiplier,
-		config.bucketGrowBy = setDefaultBucketConfig(config.bucketSize,
-		config.bucketMultiplier, config.bucketGrowBy)
+// NewRune creates an empty rune set with target capacity specified by size using default configuration
+func NewRune(size rune) *Rune {
+	return NewRuneConfig(size, Default)
+}
+
+// NewRuneConfig creates an empty rune set with target capacity specified by size
+func NewRuneConfig(size rune, config *Config) *Rune {
 	if size < rune(config.bucketSize) {
-		size = rune(config.bucketSize) * rune(config.bucketMultiplier)
+		size = rune(config.bucketSize)
 	}
 	count := upTwo(int(size) / config.bucketSize)
 	s := &Rune{
-		mask:         rune(count) - 1,
-		buckets:      make([][]rune, count),
-		bucketGrowBy: config.bucketGrowBy,
+		mask:    rune(count) - 1,
+		buckets: make([][]rune, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -60,7 +62,7 @@ func (s *Rune) Set(value rune) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]rune, l, l+s.bucketGrowBy)
+		n := make([]rune, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -169,7 +171,7 @@ func IntersectRune(sets SetsRune) *Rune {
 		}
 		values = append(values, value)
 	})
-	s := NewRune(rune(len(values)), BucketConfig{})
+	s := NewRune(rune(len(values)))
 	for _, value := range values {
 		s.Set(value)
 	}
@@ -184,7 +186,7 @@ func UnionRune(sets SetsRune) *Rune {
 			values[value] = struct{}{}
 		})
 	}
-	s := NewRune(rune(len(values)), BucketConfig{})
+	s := NewRune(rune(len(values)))
 	for value := range values {
 		s.Set(value)
 	}

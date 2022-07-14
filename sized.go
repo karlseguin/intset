@@ -27,25 +27,27 @@ func (s Sets) Swap(i, j int) {
 
 // Sized stores int set data
 type Sized struct {
-	mask         int
-	buckets      [][]int
-	length       int
-	bucketGrowBy int
+	mask    int
+	buckets [][]int
+	length  int
+	growBy  int
 }
 
-// NewSized creates an empty int set with target capacity specified by size
-func NewSized(size int, config BucketConfig) *Sized {
-	config.bucketSize, config.bucketMultiplier,
-		config.bucketGrowBy = setDefaultBucketConfig(config.bucketSize,
-		config.bucketMultiplier, config.bucketGrowBy)
+// NewSized creates an empty int set with target capacity specified by size using default configuration
+func NewSized(size int) *Sized {
+	return NewSizedConfig(size, Default)
+}
+
+// NewSizedConfig creates an empty int set with target capacity specified by size
+func NewSizedConfig(size int, config *Config) *Sized {
 	if size < config.bucketSize {
-		size = config.bucketSize * config.bucketMultiplier
+		size = config.bucketSize
 	}
 	count := upTwo(size / config.bucketSize)
 	s := &Sized{
-		mask:         count - 1,
-		buckets:      make([][]int, count),
-		bucketGrowBy: config.bucketGrowBy,
+		mask:    count - 1,
+		buckets: make([][]int, count),
+		growBy:  config.bucketGrowBy,
 	}
 	return s
 }
@@ -60,7 +62,7 @@ func (s *Sized) Set(value int) {
 	}
 	l := len(bucket)
 	if cap(bucket) == l {
-		n := make([]int, l, l+s.bucketGrowBy)
+		n := make([]int, l, l+s.growBy)
 		copy(n, bucket)
 		bucket = n
 	}
@@ -169,7 +171,7 @@ func Intersect(sets Sets) *Sized {
 		}
 		values = append(values, value)
 	})
-	s := NewSized(len(values), BucketConfig{})
+	s := NewSized(len(values))
 	for _, value := range values {
 		s.Set(value)
 	}
@@ -184,7 +186,7 @@ func Union(sets Sets) *Sized {
 			values[value] = struct{}{}
 		})
 	}
-	s := NewSized(len(values), BucketConfig{})
+	s := NewSized(len(values))
 	for value := range values {
 		s.Set(value)
 	}
