@@ -26,8 +26,8 @@ func upTwo(v int) int {
 	return v
 }
 
+// setDefaultBucketConfig sets default values for a reasonable space-time tradeoff.
 func setDefaultBucketConfig(bucketSize int, bucketMultiplier int, bucketGrowBy int) (int, int, int) {
-	// Default values for a reasonable space-time tradeoff
 	if bucketSize < 1 {
 		bucketSize = 4
 	}
