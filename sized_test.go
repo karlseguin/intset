@@ -21,8 +21,8 @@ func Test_Sized_Exists(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		AssertFalse(t, s.Exists(i))
 		s.Set(i)
-	}
-	for i := 0; i < 100; i++ {
+		AssertTrue(t, s.Exists(i))
+		s.Set(i)
 		AssertTrue(t, s.Exists(i))
 	}
 }
@@ -92,6 +92,19 @@ func Test_Sized_UnionsTwoSets(t *testing.T) {
 	}
 }
 
+func Test_Swap(t *testing.T) {
+	s1 := NewSized(1)
+	s1.Set(0)
+	s2 := NewSized(1)
+	s2.Set(1)
+	s := Sets{s1, s2}
+	s.Swap(0, 1)
+	AssertTrue(t, s[0].Exists(1))
+	AssertFalse(t, s[0].Exists(0))
+	AssertTrue(t, s[1].Exists(0))
+	AssertFalse(t, s[1].Exists(1))
+}
+
 func Benchmark_SizedPopulate(b *testing.B) {
 	s := NewSized(10000000)
 	b.ResetTimer()
@@ -144,6 +157,7 @@ func Benchmark_SizedDenseIntersect(b *testing.B) {
 }
 
 // Benchmarks for map[int]struct{}
+// should be slower than intset
 
 func Benchmark_SizedMapDenseExists(b *testing.B) {
 	s := make(map[int]struct{})
@@ -166,32 +180,5 @@ func Benchmark_SizedMapSparseExists(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = s[i%1000000]
-	}
-}
-
-// Two values are equal
-func AssertEqual[T comparable](t *testing.T, actual T, expected T) {
-	t.Helper()
-	if actual != expected {
-		t.Errorf("\nexpected: '%v'\nto equal: '%v'", actual, expected)
-		t.FailNow()
-	}
-}
-
-// A value is true
-func AssertTrue(t *testing.T, actual bool) {
-	t.Helper()
-	if !actual {
-		t.Error("expected true, got false")
-		t.FailNow()
-	}
-}
-
-// A value is false
-func AssertFalse(t *testing.T, actual bool) {
-	t.Helper()
-	if actual {
-		t.Error("expected false, got true")
-		t.FailNow()
 	}
 }

@@ -2,7 +2,7 @@
 
 [![Go Reference](https://img.shields.io/badge/go-reference-blue?logo=go&logoColor=white&style=for-the-badge)](https://pkg.go.dev/github.com/karlseguin/intset)
 [![Go Report Card](https://goreportcard.com/badge/github.com/karlseguin/intset?style=for-the-badge)](https://goreportcard.com/report/github.com/karlseguin/intset)
-[![GitHub license](https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge)](LICENSE)
+[![GitHub license](https://img.shields.io/badge/LICENSE-MIT-GREEN?style=for-the-badge)](license.txt)
 
 A specialized set for integers or runes, ideal when:
 
@@ -13,7 +13,7 @@ A specialized set for integers or runes, ideal when:
 As long as the number of elements within the set stays close to the originally specified size (I don't know the magic number, so let's say ±10%), and that they stay evenly distributed. the set will exhibit good read and write performance, as well as decent memory usage. When packed, read performance is roughly 7 times better than a map[int]struct{}.
 
 ```go
-set := intset.NewSized(1000000)  // or intset.NewSized32(100000) or intset.NewRune(100000)
+set := intset.NewSized(1000000)  // or intset.NewSized32(1000000) or intset.NewRune(1000000)
 set.Set(32)
 set.Exists(32)
 ```
@@ -45,9 +45,10 @@ result := intset.IntersectRune([]Set32{s1, s2})
 `Union`, `Union32`, and `UnionRune` can be similarly used.
 
 ## Advanced Sizing
+
 The `NewSizedConfig`, `NewSized32Config` and `NewRuneConfig` functions can be used to have more control over how the set behaves. These functions take the size, as normal, as well as a `Config`:
 
-```go 
+```go
 config1 := intset.NewConfig()
 set1 := intset.NewSizedConfig(1000000, config1)
 

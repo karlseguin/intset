@@ -33,12 +33,12 @@ type Sized struct {
 	growBy  int
 }
 
-// NewSized creates an empty int set with target capacity using default configuration
+// NewSized creates an empty int set with target capacity specified by size using default configuration
 func NewSized(size int) *Sized {
 	return NewSizedConfig(size, Default)
 }
 
-// NewSized creates an empty int set with target capacity specified by size
+// NewSizedConfig creates an empty int set with target capacity specified by size
 func NewSizedConfig(size int, config *Config) *Sized {
 	if size < config.bucketSize {
 		size = config.bucketSize

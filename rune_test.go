@@ -21,8 +21,8 @@ func Test_Rune_Exists(t *testing.T) {
 	for i := rune(0); i < 10; i++ {
 		AssertFalse(t, s.Exists(i))
 		s.Set(i)
-	}
-	for i := rune(0); i < 10; i++ {
+		AssertTrue(t, s.Exists(i))
+		s.Set(i)
 		AssertTrue(t, s.Exists(i))
 	}
 }
@@ -89,6 +89,19 @@ func Test_Rune_UnionsTwoSets(t *testing.T) {
 	AssertFalse(t, s.Exists(5))
 }
 
+func Test_SwapRune(t *testing.T) {
+	s1 := NewRune(1)
+	s1.Set(0)
+	s2 := NewRune(1)
+	s2.Set(1)
+	s := SetsRune{s1, s2}
+	s.Swap(0, 1)
+	AssertTrue(t, s[0].Exists(1))
+	AssertFalse(t, s[0].Exists(0))
+	AssertTrue(t, s[1].Exists(0))
+	AssertFalse(t, s[1].Exists(1))
+}
+
 func Benchmark_RunePopulate(b *testing.B) {
 	s := NewRune(10000000)
 	b.ResetTimer()
@@ -141,6 +154,7 @@ func Benchmark_RuneDenseIntersect(b *testing.B) {
 }
 
 // Benchmarks for map[rune]struct{}
+// should be slower than intset
 
 func Benchmark_RuneMapDenseExists(b *testing.B) {
 	s := make(map[rune]struct{})

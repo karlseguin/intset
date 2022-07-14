@@ -21,8 +21,8 @@ func Test_Sized32_Exists(t *testing.T) {
 	for i := uint32(0); i < 10; i++ {
 		AssertFalse(t, s.Exists(i))
 		s.Set(i)
-	}
-	for i := uint32(0); i < 10; i++ {
+		AssertTrue(t, s.Exists(i))
+		s.Set(i)
 		AssertTrue(t, s.Exists(i))
 	}
 }
@@ -90,6 +90,19 @@ func Test_Sized32_UnionsTwoSets(t *testing.T) {
 	AssertFalse(t, s.Exists(5))
 }
 
+func Test_Swap32(t *testing.T) {
+	s1 := NewSized32(1)
+	s1.Set(0)
+	s2 := NewSized32(1)
+	s2.Set(1)
+	s := Sets32{s1, s2}
+	s.Swap(0, 1)
+	AssertTrue(t, s[0].Exists(1))
+	AssertFalse(t, s[0].Exists(0))
+	AssertTrue(t, s[1].Exists(0))
+	AssertFalse(t, s[1].Exists(1))
+}
+
 func Benchmark_Sized32Populate(b *testing.B) {
 	s := NewSized32(10000000)
 	b.ResetTimer()
@@ -142,6 +155,7 @@ func Benchmark_Sized32DenseIntersect(b *testing.B) {
 }
 
 // Benchmarks for map[uint32]struct{}
+// should be slower than intset
 
 func Benchmark_Sized32MapDenseExists(b *testing.B) {
 	s := make(map[uint32]struct{})

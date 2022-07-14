@@ -33,11 +33,12 @@ type Rune struct {
 	growBy  int
 }
 
+// NewRune creates an empty rune set with target capacity specified by size using default configuration
 func NewRune(size rune) *Rune {
 	return NewRuneConfig(size, Default)
 }
 
-// NewRune creates an empty rune set with target capacity specified by size
+// NewRuneConfig creates an empty rune set with target capacity specified by size
 func NewRuneConfig(size rune, config *Config) *Rune {
 	if size < rune(config.bucketSize) {
 		size = rune(config.bucketSize)

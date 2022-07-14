@@ -1,20 +1,33 @@
 // Package intset provides a specialized set for integers or runes
 package intset
 
+const (
+	defaultBucketSize   int = 4
+	defaultBucketGrowBy int = 1
+)
+
 // Config defines the configuration for creating a new set
+//
+// Smaller values for bucketSize will speed up lookups but
+// also increase memory usage. Smaller values for bucketGrowBy will slow down
+// the set capacity growth rate but also slow down insertions.
 type Config struct {
 	bucketSize   int
 	bucketGrowBy int
 }
 
-// New Config creates a new config with usable defaults
+// NewConfig creates a new config with usable defaults
 func NewConfig() *Config {
-	return &Config{bucketSize: 4, bucketGrowBy: 1}
+	return &Config{bucketSize: defaultBucketSize, bucketGrowBy: defaultBucketGrowBy}
 }
 
 // BucketSize sets the initial bucket size
 func (c *Config) BucketSize(size uint32) *Config {
-	c.bucketSize = int(size)
+	if size == 0 { // bucketSize must be positive int
+		c.bucketSize = defaultBucketSize
+	} else {
+		c.bucketSize = int(size)
+	}
 	return c
 }
 
