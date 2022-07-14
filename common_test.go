@@ -2,6 +2,11 @@ package intset
 
 import "testing"
 
+func Test_ConfigZeroBucketSize(t *testing.T) {
+	config := NewConfig().BucketSize(0)
+	AssertTrue(t, config.bucketSize == defaultBucketSize)
+}
+
 // Common testing utility functions
 
 // AssertEqual checks if two values are equal
