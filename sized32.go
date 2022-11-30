@@ -136,21 +136,11 @@ func (s Sized32) index(value uint32, bucket []uint32) (int, bool) {
 }
 
 func (s Sized32) exists(value uint32, bucket []uint32) bool {
-	l := len(bucket)
-	if l == 0 {
+	if len(bucket) == 0 {
 		return false
 	}
 
-	l = l / 2
-	v := bucket[l]
-	if value == v {
-		return true
-	}
-	if value > v {
-		bucket = bucket[l:]
-	}
-
-	for _, v = range bucket {
+	for _, v := range bucket {
 		if v >= value {
 			return v == value
 		}
