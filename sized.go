@@ -136,21 +136,11 @@ func (s Sized) index(value int, bucket []int) (int, bool) {
 }
 
 func (s Sized) exists(value int, bucket []int) bool {
-	l := len(bucket)
-	if l == 0 {
+	if len(bucket) == 0 {
 		return false
 	}
 
-	l = l / 2
-	v := bucket[l]
-	if value == v {
-		return true
-	}
-	if value > v {
-		bucket = bucket[l:]
-	}
-
-	for _, v = range bucket {
+	for _, v := range bucket {
 		if v >= value {
 			return v == value
 		}
